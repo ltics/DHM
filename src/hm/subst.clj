@@ -1,10 +1,11 @@
 (ns hm.subst
-  (require [hm.syntax :refer :all]))
+  (require [adt.sweet :refer :all]
+           [hm.syntax :refer :all]))
 
 ;; substitution rule is just mapping type variable names to monotypes
 
 (defn subrule-of-list
-  "get subrule from a list of sub pairs"
+  "get subrule from a list of type variable name and monotype pairs"
   [l]
   (reduce (fn [subrule [tvname mono]]
             (assoc subrule tvname mono)) {} l))
