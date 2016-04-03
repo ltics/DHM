@@ -1,12 +1,14 @@
 (ns hm.syntax
   (require [adt.sweet :refer :all]))
 
+;; vname -> varaible name
+;; tvname -> type variable name
+
+;; values
+
 (defadt ::lit
   (LInt value)
   (LBool value))
-
-;; vname -> varaible name
-;; tvname -> type variable name
 
 (defadt ::expr
   (EVar vname)
@@ -15,13 +17,15 @@
   (EApp lexpr rexpr)
   (ELet vname expr body))
 
+;; types
+
 (defadt ::prim
   PInt
   PBool)
 
 (defadt ::mono
   (TVar tvname)
-  (TPrim prim)
+  (TPrm prim)
   (TFun lmono rmono)
   TError)
 
