@@ -35,13 +35,13 @@
    algw(env, expr) -> (subrule, type)"
   [env expr]
   (match expr
-    (EVar n) (let [t (if (contains? (keys env) expr)
-                       (instantiate (env expr))
+    (EVar n) (let [t (if (contains? env n)
+                       (instantiate (env n))
                        TError)]
                [{} t])
     (ELit lit) (let [lit-mono (match lit
-                                LInt (TPrm PInt)
-                                LBool (TPrm PBool))]
+                                (LInt _) (TPrm PInt)
+                                (LBool _) (TPrm PBool))]
                  [{} lit-mono])
     (EAbs vname expr) (let [fresh-tv (TVar (pick-fresh-tvname))
                             [subrule mono] (algw (env-replace [vname (Mono fresh-tv)]
@@ -53,7 +53,7 @@
                              [subrule2 mono2] (algw (subst-env subrule1 env) rexpr)
                              fresh-tv (TVar (pick-fresh-tvname))]
                          (if-let [subrule3 (unify (submono subrule2 mono1)
-                                                    (TFun mono2 fresh-tv))]
+                                                  (TFun mono2 fresh-tv))]
                            [(compose subrule3 (compose subrule2 subrule1))
                             (submono subrule3 fresh-tv)]
                            [{} TError]))

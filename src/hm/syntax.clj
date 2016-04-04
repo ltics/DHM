@@ -43,3 +43,25 @@
                                                         (ftv (Mono rmono)))
                   :else #{})
     (Poly tvnames mono) (clojure.set/difference (ftv (Mono mono)) tvnames)))
+
+(defn s-of-tvn
+  "string of type variable names"
+  [x]
+  (if (and (>= x 0) (< x 26))
+    (->> x (+ 97) char str)
+    (if (and (>= x 26) (< x 52))
+      (->> x (+ 39) char str)
+      (format "(%d)" x))))
+
+(defn s-of-m
+  "string of monotypes"
+  [t]
+  (match t
+    (TPrm prim) (match prim
+                  PInt "int"
+                  PBool "bool")
+    (TVar name) (s-of-tvn name)
+    (TFun lmono rmono) (format "(%s -> %s)"
+                               (s-of-m lmono)
+                               (s-of-m rmono))
+    TError "ERROR"))
