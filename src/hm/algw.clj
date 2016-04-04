@@ -1,6 +1,7 @@
 (ns hm.algw
   (require [adt.sweet :refer :all]
            [hm.syntax :refer :all]
+           [hm.env :refer :all]
            [hm.subst :refer :all]))
 
 (defn occurs
@@ -29,3 +30,41 @@
     :else (match mono2
             (TVar n2) (when-not (occurs n2 mono1) {n2 mono1}))))
 
+(defn algw
+  "type inference procedure
+   algw(env, expr) -> (subrule, type)"
+  [env expr]
+  (match expr
+    (EVar n) (let [t (if (contains? (keys env) expr)
+                       (instantiate (env expr))
+                       TError)]
+               [{} t])
+    (ELit lit) (let [lit-mono (match lit
+                                LInt (TPrm PInt)
+                                LBool (TPrm PBool))]
+                 [{} lit-mono])
+    (EAbs vname expr) (let [fresh-tv (TVar (pick-fresh-tvname))
+                            [subrule mono] (algw (env-replace [vname (Mono fresh-tv)]
+                                                              env)
+                                                 expr)
+                            abs-mono (TFun (submono subrule fresh-tv) mono)]
+                        [subrule abs-mono])
+    (EApp lexpr rexpr) (let [[subrule1 mono1] (algw env lexpr)
+                             [subrule2 mono2] (algw (subst-env subrule1 env) rexpr)
+                             fresh-tv (TVar (pick-fresh-tvname))]
+                         (if-let [subrule3 (unify (submono subrule2 mono1)
+                                                    (TFun mono2 fresh-tv))]
+                           [(compose subrule3 (compose subrule2 subrule1))
+                            (submono subrule3 fresh-tv)]
+                           [{} TError]))
+    (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
+                             s1-env (subst-env subrule1 env)
+                             [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
+                         [(compose subrule2 subrule1) b-mono])
+    :else [{} TError]))
+
+(defn infer
+  "type inference wrapper, infer(env, expr) -> type, basicly a monotype returned"
+  [env expr]
+  (let [[_ mono] (algw env expr)]
+    mono))
