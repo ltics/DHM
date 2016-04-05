@@ -80,10 +80,14 @@
     (EApp lexpr rexpr) (let [[subrule1 mono1] (algw env lexpr)
                              [subrule2 mono2] (algw (subst-env subrule1 env) rexpr)
                              fresh-tv (TVar (pick-fresh-tvname))]
-                         (let [subrule3 (unify (submono subrule2 mono1)
-                                               (TFun mono2 fresh-tv))]
-                           [(compose subrule3 (compose subrule2 subrule1))
-                            (submono subrule3 fresh-tv)]))
+                         (try (let [subrule3 (unify (submono subrule2 mono1)
+                                                    (TFun mono2 fresh-tv))]
+                                [(compose subrule3 (compose subrule2 subrule1))
+                                 (submono subrule3 fresh-tv)])
+                              (catch Exception e
+                                (throw (Exception. (format "%s in %s"
+                                                           (.getMessage e)
+                                                           (s-of-expr expr)))))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subst-env subrule1 env)
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]

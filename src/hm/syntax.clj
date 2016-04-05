@@ -61,7 +61,39 @@
                   PInt "int"
                   PBool "bool")
     (TVar name) (s-of-tvn name)
-    (TFun lmono rmono) (format "(%s -> %s)"
-                               (s-of-m lmono)
-                               (s-of-m rmono))
+    (TFun lmono rmono) (match lmono
+                         (TFun _) (format "(%s) -> %s"
+                                          (s-of-m lmono)
+                                          (s-of-m rmono))
+                         :else (format "%s -> %s"
+                                       (s-of-m lmono)
+                                       (s-of-m rmono)))
     (TError msg) msg))
+
+(declare s-of-paren-expr)
+
+(defn s-of-expr
+  "string of expression"
+  [e]
+  (match e
+    (EVar name) name
+    (ELit lit) (match lit
+                 (LInt i) i
+                 (LBool b) (if b "true" "false"))
+    (EAbs n e) (format "λ%s -> %s" n (s-of-expr e))
+    (EApp le re) (format "%s %s"
+                         (s-of-expr le)
+                         (s-of-paren-expr re))
+    (ELet n e b) (format "let %s = %s in %s"
+                         n
+                         (s-of-expr e)
+                         (s-of-expr b))))
+
+(defn s-of-paren-expr
+  "expr surround with parenthesis"
+  [e]
+  (match e
+    (ELet _) (format "(%s)" (s-of-expr e))
+    (EApp _) (format "(%s)" (s-of-expr e))
+    (EAbs _) (format "(%s)" (s-of-expr e))
+    :else (s-of-expr e)))
