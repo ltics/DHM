@@ -26,9 +26,10 @@
   [subrule t]
   (match t
     (Mono mono) (Mono (submono subrule mono))
-    (Poly tvnames mono) (let [subrule (filter (fn [[tvname _]]
-                                                ((complement contains?) tvnames tvname))
-                                              subrule)]
+    (Poly tvnames mono) (let [subrule (->> subrule
+                                           (filter (fn [[tvname _]]
+                                                     ((complement contains?) tvnames tvname)))
+                                           (into {}))]
                           (Poly tvnames (submono subrule mono)))))
 
 (defn compose

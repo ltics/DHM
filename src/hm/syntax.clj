@@ -51,7 +51,7 @@
     (->> x (+ 97) char str)
     (if (and (>= x 26) (< x 52))
       (->> x (+ 39) char str)
-      (format "(%d)" x))))
+      (format "τ%d" x))))
 
 (defn s-of-m
   "string of monotypes"
