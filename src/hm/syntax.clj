@@ -27,7 +27,7 @@
   (TVar tvname)
   (TPrm prim)
   (TFun lmono rmono)
-  TError)
+  (TError msg))
 
 (defadt ::poly
   (Mono mono)
@@ -64,4 +64,4 @@
     (TFun lmono rmono) (format "(%s -> %s)"
                                (s-of-m lmono)
                                (s-of-m rmono))
-    TError "ERROR"))
+    (TError msg) msg))
