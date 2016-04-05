@@ -1,0 +1,10 @@
+sudo: false
+language: clojure
+lein: lein2
+script: lein colortest
+jdk:
+  - openjdk7
+  - oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
