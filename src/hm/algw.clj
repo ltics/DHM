@@ -15,22 +15,29 @@
 
 (defn unify
   "unification of two monotypes, return the subrule t ~ t' : s
-   the subrule also is mgu(t1, t2)"
+   the subrule also is mgu(t1, t2)
+   {} stand for ⊥ and nil stand for undefined
+   unify(TVar 'a', TVar 'a') -> {}
+   unify(TPrm PInt, TPrm PBool) -> nil"
   [mono1 mono2]
-  (match mono1
-    (TPrm p1) (match mono2
-                (TPrm p2) (if (= p1 p2) {} nil)
-                (TVar n2) (when-not (occurs n2 mono1) {n2 mono1}))
-    (TVar n1) (when-not (occurs n1 mono2) {n1 mono2})
-    (TFun lm1 rm1) (match mono2
-                     (TFun lm2 rm2) (when-let [s1 (unify lm1 lm2)]
-                                      (let [s (partial submono s1)]
-                                        (when-let [s2 (unify (s rm1)
-                                                             (s rm2))]
-                                          (compose s2 s1))))
-                     (TVar n2) (when-not (occurs n2 mono1) {n2 mono1}))
-    :else (match mono2
-            (TVar n2) (when-not (occurs n2 mono1) {n2 mono1}))))
+  (let [match-m2-tvar #(match mono2
+                        (TVar n2) (when-not (occurs n2 mono1) {n2 mono1})
+                        :else nil)]
+    (match mono1
+      (TVar n1) (match mono2
+                  (TVar n2) (if (= n1 n2) {} {n1 mono2})
+                  :else (when-not (occurs n1 mono2) {n1 mono2}))
+      (TPrm p1) (match mono2
+                  (TPrm p2) (if (= p1 p2) {} nil)
+                  :else (match-m2-tvar))
+      (TFun lm1 rm1) (match mono2
+                       (TFun lm2 rm2) (when-let [s1 (unify lm1 lm2)]
+                                        (let [s (partial submono s1)]
+                                          (when-let [s2 (unify (s rm1)
+                                                               (s rm2))]
+                                            (compose s2 s1))))
+                       :else (match-m2-tvar))
+      :else nil)))
 
 (defn algw
   "type inference procedure
