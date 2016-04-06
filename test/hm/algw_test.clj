@@ -84,7 +84,8 @@
       (is= (s-of-m (infer {} expr9)) "occurs check fails: U vs. U -> V in b (a (a b))")
       (is= (s-of-m (infer {} expr10)) "int")
       (is= (s-of-m (infer {} expr11)) "(τ2 -> τ3) -> (τ3 -> τ4) -> τ2 -> τ4")))
-  (testing "inference extra types"
+  ;; generally saying TFun is also a compound type
+  (testing "inference compound types"
     (let [expr0 (EApp (EApp (EVar "pair")
                             (ELit (LInt 3)))
                       (ELit (LInt 3)))
@@ -140,7 +141,7 @@
       (is= (s-of-m (infer common-env expr5)) "τ29 -> (τ29 * τ29)")
       (is= (s-of-m (infer common-env expr6)) "int")
       (is= (s-of-m (infer common-env expr7)) "[τ52] -> int")))
-  (testing "inference recursion function types"
+  (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"
                                (EApp (EApp (EApp (EVar "if")
