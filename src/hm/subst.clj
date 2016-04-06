@@ -19,6 +19,9 @@
                     (TVar tvname))
     (TFun lmono rmono) (TFun (submono subrule lmono)
                              (submono subrule rmono))
+    (TList mono) (TList (submono subrule mono))
+    (TPair lmono rmono) (TPair (submono subrule lmono)
+                               (submono subrule rmono))
     :else t))
 
 (defn subpoly

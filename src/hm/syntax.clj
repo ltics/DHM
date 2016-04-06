@@ -28,6 +28,8 @@
   (TVar tvname)
   (TPrm prim)
   (TFun lmono rmono)
+  (TList mono)
+  (TPair lmono rmono)
   (TError msg))
 
 (defadt ::poly
@@ -42,6 +44,9 @@
                   (TVar tvname) #{tvname}
                   (TFun lmono rmono) (clojure.set/union (ftv (Mono lmono))
                                                         (ftv (Mono rmono)))
+                  (TList mono) (ftv (Mono mono))
+                  (TPair lmono rmono) (clojure.set/union (ftv (Mono lmono))
+                                                         (ftv (Mono rmono)))
                   :else #{})
     (Poly tvnames mono) (clojure.set/difference (ftv (Mono mono)) tvnames)))
 
@@ -69,6 +74,10 @@
                          :else (format "%s -> %s"
                                        (s-of-m lmono)
                                        (s-of-m rmono)))
+    (TList mono) (format "[%s]" (s-of-m mono))
+    (TPair lmono rmono) (format "(%s * %s)"
+                                (s-of-m lmono)
+                                (s-of-m rmono))
     (TError msg) msg))
 
 (declare s-of-paren-expr)

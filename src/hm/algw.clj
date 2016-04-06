@@ -56,6 +56,16 @@
                                                       (s rm2))]
                                         (compose s2 s1))
                        :else (match-m2-tvar))
+      (TList m1) (match mono2
+                   (TList m2) (unify m1 m2)
+                   :else (match-m2-tvar))
+      (TPair lm1 rm1) (match mono2
+                        (TPair lm2 rm2) (let [s1 (unify lm1 lm2)
+                                              s  (partial submono s1)
+                                              s2 (unify (s rm1)
+                                                        (s rm2))]
+                                          (compose s2 s1))
+                        :else (match-m2-tvar))
       :else (throw-unify-exp mono1 mono2))))
 
 (defn algw
@@ -65,7 +75,7 @@
   (match expr
     (EVar n) (let [t (if (contains? env n)
                        (instantiate (env n))
-                       (TError (format "unbound variable: %s" n)))]
+                       (throw (Exception. (format "unbound variable: %s" n))))]
                [{} t])
     (ELit lit) (let [lit-mono (match lit
                                 (LInt _) (TPrm PInt)
@@ -93,12 +103,12 @@
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
                          [(compose subrule2 subrule1) b-mono])
     (ELetRec n expr body) (let [fresh-tv (TVar (pick-fresh-tvname))
-                                ext-env (env-replace [n (Mono fresh-tv)] env)
+                                ext-env  (env-replace [n (Mono fresh-tv)] env)
                                 [subrule1 e-mono] (algw ext-env expr)
                                 subrule2 (unify fresh-tv e-mono)
                                 [subrule3 b-mono] (algw (subst-env subrule2 ext-env) body)]
                             [(compose subrule3 (compose subrule2 subrule1)) b-mono])
-    :else [{} (TError (format "unknown type for give expression %s" expr))]))
+    :else [{} (throw (Exception. (format "unknown type for give expression %s" expr)))]))
 
 (defn infer
   "type inference wrapper, infer(env, expr) -> type, basicly a monotype returned"
