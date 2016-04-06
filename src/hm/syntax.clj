@@ -50,14 +50,25 @@
                   :else #{})
     (Poly tvnames mono) (clojure.set/difference (ftv (Mono mono)) tvnames)))
 
+(def fresh-state (atom 0))
+
+(defn pick-fresh-tvname
+  "pick up a unique type variable name"
+  []
+  (swap! fresh-state inc)
+  (dec @fresh-state))
+
 (defn s-of-tvn
   "string of type variable names"
   [x]
-  (if (and (>= x 0) (< x 26))
-    (->> x (+ 97) char str)
-    (if (and (>= x 26) (< x 52))
-      (->> x (+ 39) char str)
-      (format "τ%d" (- x 52)))))
+  (cond
+    (integer? x) (if (and (>= x 0) (< x 26))
+                   (->> x (+ 97) char str)
+                   (if (and (>= x 26) (< x 52))
+                     (->> x (+ 39) char str)
+                     (format "τ%d" (- x 52))))
+    (string? x) (s-of-tvn (pick-fresh-tvname))
+    :else (throw (Exception. "invalid type variable name"))))
 
 (defn s-of-m
   "string of monotypes"

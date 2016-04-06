@@ -42,14 +42,6 @@
                                 (get-ftvset-from-env env))
         mono))
 
-(def fresh-state (atom 0))
-
-(defn pick-fresh-tvname
-  "pick up a unique type variable name"
-  []
-  (swap! fresh-state inc)
-  (dec @fresh-state))
-
 (defn instantiate
   "polytype to monotype, all quantified variables get replaced by fresh free type variables
    instantiate(∀a1 ... an . t) -> [a1/b1 ... an/bn]t where b1 ... bn are fresh"
