@@ -68,5 +68,5 @@
    "times"  (Mono (TFun (TPrm PInt) (TFun (TPrm PInt) (TPrm PInt))))
    "if"     (let [fresh-tv (TVar "a")]
               (Mono (TFun (TPrm PBool) (TFun fresh-tv (TFun fresh-tv fresh-tv)))))
-   "fix"    (let [fresh-tv (TVar "a")]
+   "fix"    (let [fresh-tv (TVar "b")]
               (Mono (TFun (TFun fresh-tv fresh-tv) fresh-tv)))})
