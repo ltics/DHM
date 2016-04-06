@@ -50,7 +50,16 @@
           expr9     (EAbs "a" (EAbs "b"
                                     (EApp (EVar "b")
                                           (EApp (EVar "a")
-                                                (EApp (EVar "a") (EVar "b"))))))]
+                                                (EApp (EVar "a") (EVar "b"))))))
+          expr10    (ELet "g"
+                          (EAbs "f" (ELit (LInt 5)))
+                          (EApp (EVar "g") (EVar "g")))
+          ;; "λf -> λg -> λarg -> g (f arg)"
+          expr11    (EAbs "f"
+                          (EAbs "g"
+                                (EAbs "arg"
+                                      (EApp (EVar "g")
+                                            (EApp (EVar "f") (EVar "arg"))))))]
       (is= (s-of-m (infer {} fun-id))
            "a -> a")
       (is= (s-of-m (infer {} fun-true))
@@ -72,7 +81,41 @@
       (is= (s-of-m (infer {} expr6)) "(bool -> H) -> H")
       (is= (s-of-m (infer {} expr7)) "types do not unify: int vs. int -> I in 3 3")
       (is= (s-of-m (infer {} expr8)) "(int -> Q) -> Q")
-      (is= (s-of-m (infer {} expr9)) "occurs check fails: U vs. U -> V in b (a (a b))")))
+      (is= (s-of-m (infer {} expr9)) "occurs check fails: U vs. U -> V in b (a (a b))")
+      (is= (s-of-m (infer {} expr10)) "int")
+      (is= (s-of-m (infer {} expr11)) "(τ2 -> τ3) -> (τ3 -> τ4) -> τ2 -> τ4")))
+  (testing "inference extra types"
+    (let [expr0 (EApp (EApp (EVar "pair")
+                            (ELit (LInt 3)))
+                      (ELit (LInt 3)))
+          expr1 (EApp (EApp (EVar "pair")
+                            (EApp (EVar "f") (ELit (LInt 3))))
+                      (EApp (EVar "f") (ELit (LInt 3))))
+          expr2 (EAbs "f"
+                      (EApp (EApp (EVar "pair")
+                                  (EApp (EVar "f") (ELit (LInt 3))))
+                            (EApp (EVar "f") (ELit (LInt 3)))))
+          expr3 (EAbs "f"
+                      (EApp (EApp (EVar "pair")
+                                  (EApp (EVar "f") (ELit (LInt 3))))
+                            (EApp (EVar "f") (ELit (LBool true)))))
+          expr4 (ELet "f"
+                      (EAbs "x" (EVar "x"))
+                      (EApp (EApp (EVar "pair")
+                                  (EApp (EVar "f") (ELit (LInt 3))))
+                            (EApp (EVar "f") (ELit (LBool true)))))
+          expr5 (EAbs "g"
+                      (ELet "f"
+                            (EAbs "x" (EVar "g"))
+                            (EApp (EApp (EVar "pair")
+                                        (EApp (EVar "f") (ELit (LInt 3))))
+                                  (EApp (EVar "f") (ELit (LBool true))))))]
+      (is= (s-of-m (infer common-env expr0)) "(int * int)")
+      (is= (s-of-m (infer common-env expr1)) "unbound variable: f")
+      (is= (s-of-m (infer common-env expr2)) "(int -> τ10) -> (τ10 * τ10)")
+      (is= (s-of-m (infer common-env expr3)) "types do not unify: int vs. bool in f true")
+      (is= (s-of-m (infer common-env expr4)) "(int * bool)")
+      (is= (s-of-m (infer common-env expr5)) "τ29 -> (τ29 * τ29)")))
   (testing "inference recursion function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"
