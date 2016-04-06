@@ -54,7 +54,7 @@
           expr10    (ELet "g"
                           (EAbs "f" (ELit (LInt 5)))
                           (EApp (EVar "g") (EVar "g")))
-          ;; "λf -> λg -> λarg -> g (f arg)"
+          ;; λf -> λg -> λarg -> g (f arg)
           expr11    (EAbs "f"
                           (EAbs "g"
                                 (EAbs "arg"
@@ -109,13 +109,27 @@
                             (EAbs "x" (EVar "g"))
                             (EApp (EApp (EVar "pair")
                                         (EApp (EVar "f") (ELit (LInt 3))))
-                                  (EApp (EVar "f") (ELit (LBool true))))))]
+                                  (EApp (EVar "f") (ELit (LBool true))))))
+          ;; let rec len = λxs -> if (isempty xs) 0 (succ (len (tail xs))) in len (cons 0 nil)
+          expr6 (ELetRec "len"
+                         (EAbs "xs"
+                               (EApp (EApp (EApp (EVar "if")
+                                                 (EApp (EVar "isempty") (EVar "xs")))
+                                           (ELit (LInt 0)))
+                                     (EApp (EVar "succ")
+                                           (EApp (EVar "len")
+                                                 (EApp (EVar "tail") (EVar "xs"))))))
+                         (EApp (EVar "len")
+                               (EApp (EApp (EVar "cons")
+                                           (ELit (LInt 0)))
+                                     (EVar "nil"))))]
       (is= (s-of-m (infer common-env expr0)) "(int * int)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f")
       (is= (s-of-m (infer common-env expr2)) "(int -> τ10) -> (τ10 * τ10)")
       (is= (s-of-m (infer common-env expr3)) "types do not unify: int vs. bool in f true")
       (is= (s-of-m (infer common-env expr4)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr5)) "τ29 -> (τ29 * τ29)")))
+      (is= (s-of-m (infer common-env expr5)) "τ29 -> (τ29 * τ29)")
+      (is= (s-of-m (infer common-env expr6)) "int")))
   (testing "inference recursion function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"
