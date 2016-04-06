@@ -1,6 +1,7 @@
 (ns hm.algw-test
   (require [acolfut.sweet :refer :all]
            [hm.syntax :refer :all]
+           [hm.env :refer :all]
            [hm.algw :refer :all]))
 
 (deftest algw-test
@@ -12,7 +13,7 @@
       (is= (unify mono1 mono2) {"a" (TPrm PInt) "b" (TPrm PInt)})
       (is= (unify mono3 mono4) {1 (TFun (TVar 3) (TVar 3))
                                 2 (TVar 3)})))
-  (testing "inference"
+  (testing "inference normal types"
     (let [fun-id    (EAbs 0 (EVar 0))
           fun-true  (EAbs 0 (EAbs 1 (EVar 0)))
           fun-false (EAbs 0 (EAbs 1 (EVar 1)))
@@ -71,4 +72,31 @@
       (is= (s-of-m (infer {} expr6)) "(bool -> H) -> H")
       (is= (s-of-m (infer {} expr7)) "types do not unify: int vs. int -> I in 3 3")
       (is= (s-of-m (infer {} expr8)) "(int -> Q) -> Q")
-      (is= (s-of-m (infer {} expr9)) "occurs check fails: U vs. U -> V in b (a (a b))"))))
+      (is= (s-of-m (infer {} expr9)) "occurs check fails: U vs. U -> V in b (a (a b))")))
+  (testing "inference recursion function types"
+    (let [expr0 (ELetRec "factorial"
+                         (EAbs "n"
+                               (EApp (EApp (EApp (EVar "if")
+                                                 (EApp (EVar "iszero")
+                                                       (EVar "n")))
+                                           (ELit (LInt 1)))
+                                     (EApp (EApp (EVar "times")
+                                                 (EVar "n"))
+                                           (EApp (EVar "factorial")
+                                                 (EApp (EVar "pred")
+                                                       (EVar "n"))))))
+                         (EVar "factorial"))
+          expr1 (ELetRec "factorial"
+                         (EAbs "n"
+                               (EApp (EApp (EApp (EVar "if")
+                                                 (EApp (EVar "iszero")
+                                                       (EVar "n")))
+                                           (ELit (LInt 1)))
+                                     (EApp (EApp (EVar "times")
+                                                 (EVar "n"))
+                                           (EApp (EVar "factorial")
+                                                 (EApp (EVar "pred")
+                                                       (EVar "n"))))))
+                         (EApp (EVar "factorial") (ELit (LInt 5))))]
+      (is= (s-of-m (infer common-env expr0)) "int -> int")
+      (is= (s-of-m (infer common-env expr1)) "int"))))

@@ -15,7 +15,8 @@
   (ELit lit)
   (EAbs vname expr)
   (EApp lexpr rexpr)
-  (ELet vname expr body))
+  (ELet vname expr body)
+  (ELetRec vname expr body))
 
 ;; types
 
@@ -87,13 +88,18 @@
     (ELet n e b) (format "let %s = %s in %s"
                          n
                          (s-of-expr e)
-                         (s-of-expr b))))
+                         (s-of-expr b))
+    (ELetRec n e b) (format "let rec %s = %s in %s"
+                            n
+                            (s-of-expr e)
+                            (s-of-expr b))))
 
 (defn s-of-paren-expr
   "expr surround with parenthesis"
   [e]
   (match e
-    (ELet _) (format "(%s)" (s-of-expr e))
-    (EApp _) (format "(%s)" (s-of-expr e))
     (EAbs _) (format "(%s)" (s-of-expr e))
+    (EApp _) (format "(%s)" (s-of-expr e))
+    (ELet _) (format "(%s)" (s-of-expr e))
+    (ELetRec _) (format "(%s)" (s-of-expr e))
     :else (s-of-expr e)))

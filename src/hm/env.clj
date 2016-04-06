@@ -3,7 +3,8 @@
            [hm.syntax :refer :all]
            [hm.subst :refer :all]))
 
-;; environment is just mapping variable names to polytypes
+;; environment is just mapping variable names to polytypes,
+;; which is also called assumptions in some papers.
 
 (defn env-of-list
   "get env from a list of variable name and polytype pairs"
@@ -56,3 +57,16 @@
                                                 (assoc acc tvname (TVar (pick-fresh-tvname))))
                                               {} tvnames)]
                           (submono subrule mono))))
+
+(def common-env
+  {"true"   (Mono (TPrm PBool))
+   "false"  (Mono (TPrm PBool))
+   "zero"   (Mono (TPrm PInt))
+   "iszero" (Mono (TFun (TPrm PInt) (TPrm PBool)))
+   "succ"   (Mono (TFun (TPrm PInt) (TPrm PInt)))
+   "pred"   (Mono (TFun (TPrm PInt) (TPrm PInt)))
+   "times"  (Mono (TFun (TPrm PInt) (TFun (TPrm PInt) (TPrm PInt))))
+   "if"     (let [fresh-tv (TVar "a")]
+              (Mono (TFun (TPrm PBool) (TFun fresh-tv (TFun fresh-tv fresh-tv)))))
+   "fix"    (let [fresh-tv (TVar "a")]
+              (Mono (TFun (TFun fresh-tv fresh-tv) fresh-tv)))})

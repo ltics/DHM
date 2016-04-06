@@ -92,6 +92,12 @@
                              s1-env (subst-env subrule1 env)
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
                          [(compose subrule2 subrule1) b-mono])
+    (ELetRec n expr body) (let [fresh-tv (TVar (pick-fresh-tvname))
+                                ext-env (env-replace [n (Mono fresh-tv)] env)
+                                [subrule1 e-mono] (algw ext-env expr)
+                                subrule2 (unify fresh-tv e-mono)
+                                [subrule3 b-mono] (algw (subst-env subrule2 ext-env) body)]
+                            [(compose subrule3 (compose subrule2 subrule1)) b-mono])
     :else [{} (TError (format "unknown type for give expression %s" expr))]))
 
 (defn infer
