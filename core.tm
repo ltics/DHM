@@ -50,7 +50,7 @@
     \ \ \ <space|1em> \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <hspace|1>
     \ \ \ \ \ \ \ S<rsub|2>=<math-it|mgu><around*|(|\<beta\>,\<tau\><rsub|1>|)>>>|<row|<cell|>|<cell|>|<cell|<hspace|1>
     \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <around*|(|S<rsub|3>,\<tau\><rsub|2>|)>=\<cal-W\><around*|(|S<rsub|2>\<Gamma\><rsup|<rprime|'>>,e<rsub|2>|)>>>|<row|<cell|>|<cell|>|<cell|<math-bf|
-    in><around*|(|S<rsub|3>\<circ\>S<rsub|2>\<circ\>S<rsub|1>,\<tau\><rsub|2>|)>>>>>
+    in><hspace|2> \ \ \ \ \ <around*|(|S<rsub|3>\<circ\>S<rsub|2>\<circ\>S<rsub|1>,\<tau\><rsub|2>|)>>>>>
   </eqnarray*>
 
   \ <doc-data|<doc-title|Desuger let rec>>
