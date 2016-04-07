@@ -53,5 +53,13 @@
     in><around*|(|S<rsub|3>\<circ\>S<rsub|2>\<circ\>S<rsub|1>,\<tau\><rsub|2>|)>>>>>
   </eqnarray*>
 
-  \ 
+  \ <doc-data|<doc-title|Desuger let rec>>
+
+  <\eqnarray*>
+    <tformat|<table|<row|<cell|<math-it|fix>>|<cell|:>|<cell|\<forall\>\<alpha\>.
+    <around*|(|\<alpha\>\<rightarrow\>\<alpha\>|)>\<rightarrow\>\<alpha\>>>|<row|<cell|>|<cell|>|<cell|>>|<row|<cell|<math-bf|let
+    rec> x=e<rsub|1><math-bf|in> e<rsub|2>>|<cell|\<colons\>=>|<cell|<math-bf|let>
+    x=<math-it|fix><around*|(|\<lambda\>x.e<rsub|1>|)> <math-bf|in>
+    e<rsub|2>>>>>
+  </eqnarray*>
 </body>

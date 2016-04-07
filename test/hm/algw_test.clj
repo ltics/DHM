@@ -135,12 +135,12 @@
                          (EVar "len"))]
       (is= (s-of-m (infer common-env expr0)) "(int * int)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f")
-      (is= (s-of-m (infer common-env expr2)) "(int -> τ10) -> (τ10 * τ10)")
+      (is= (s-of-m (infer common-env expr2)) "(int -> τ16) -> (τ16 * τ16)")
       (is= (s-of-m (infer common-env expr3)) "types do not unify: int vs. bool in f true")
       (is= (s-of-m (infer common-env expr4)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr5)) "τ29 -> (τ29 * τ29)")
+      (is= (s-of-m (infer common-env expr5)) "τ41 -> (τ41 * τ41)")
       (is= (s-of-m (infer common-env expr6)) "int")
-      (is= (s-of-m (infer common-env expr7)) "[τ52] -> int")))
+      (is= (s-of-m (infer common-env expr7)) "[τ63] -> int")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

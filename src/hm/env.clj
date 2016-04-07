@@ -61,18 +61,11 @@
    "succ"    (Mono (TFun (TPrm PInt) (TPrm PInt)))
    "pred"    (Mono (TFun (TPrm PInt) (TPrm PInt)))
    "times"   (Mono (TFun (TPrm PInt) (TFun (TPrm PInt) (TPrm PInt))))
-   "if"      (let [fresh-tv (TVar "a")]
-               (Mono (TFun (TPrm PBool) (TFun fresh-tv (TFun fresh-tv fresh-tv)))))
-   "fix"     (let [fresh-tv (TVar "b")]
-               (Mono (TFun (TFun fresh-tv fresh-tv) fresh-tv)))
-   "nil"     (Mono (TList (TVar "c")))
-   "cons"    (let [fresh-tv (TVar "d")]
-               (Mono (TFun fresh-tv (TFun (TList fresh-tv) (TList fresh-tv)))))
-   "isempty" (Mono (TFun (TList (TVar "e")) (TPrm PBool)))
-   "head"    (let [fresh-tv (TVar "f")]
-               (Mono (TFun (TList fresh-tv) fresh-tv)))
-   "tail"    (let [fresh-tv (TVar "g")]
-               (Mono (TFun (TList fresh-tv) (TList fresh-tv))))
-   "pair"    (let [fresh-tv1 (TVar "h")
-                   fresh-tv2 (TVar "i")]
-               (Mono (TFun fresh-tv1 (TFun fresh-tv2 (TPair fresh-tv1 fresh-tv2)))))})
+   "if"      (Poly #{"a"} (TFun (TPrm PBool) (TFun (TVar "a") (TFun (TVar "a") (TVar "a")))))
+   "fix"     (Poly #{"a"} (TFun (TFun (TVar "a") (TVar "a")) (TVar "a")))
+   "nil"     (Poly #{"a"} (TList (TVar "a")))
+   "cons"    (Poly #{"a"} (TFun (TVar "a") (TFun (TList (TVar "a")) (TList (TVar "a")))))
+   "isempty" (Poly #{"a"} (TFun (TList (TVar "a")) (TPrm PBool)))
+   "head"    (Poly #{"a"} (TFun (TList (TVar "a")) (TVar "a")))
+   "tail"    (Poly #{"a"} (TFun (TList (TVar "a")) (TList (TVar "a"))))
+   "pair"    (Poly #{"a" "b"} (TFun (TVar "a") (TFun (TVar "b") (TPair (TVar "a") (TVar "b")))))})
