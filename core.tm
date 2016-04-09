@@ -46,10 +46,10 @@
     in> \ \ \ \ \ <around*|(|S<rsub|2>\<circ\>S<rsub|1>,\<tau\><rsub|2>|)>>>|<row|<cell|\<cal-W\><around*|(|\<Gamma\>,<math-bf|let
     rec> x=e<rsub|1> <math-bf|in> e<rsub|2>|)>>|<cell|=>|<cell|<math-bf| let>
     \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \<Gamma\><rsup|<rprime|'>>=\<Gamma\><rsub|\<setminus\>x>\<cup\><around*|{|x:\<beta\>|}>,fresh
-    \<beta\>>>|<row|<cell|>|<cell|>|<cell|<hspace|1><space|2em><around*|(|S<rsub|1>,\<tau\><rsub|1>|)>=\<cal-W\><around*|(|\<Gamma\><rsup|<rprime|'>>,e1|)>>>|<row|<cell|>|<cell|>|<cell|<hspace|2>
+    \<beta\>>>|<row|<cell|>|<cell|>|<cell|<hspace|1><space|2em><around*|(|S<rsub|1>,\<tau\><rsub|1>|)>=\<cal-W\><around*|(|\<Gamma\><rsup|<rprime|'>>,e<rsub|1>|)>>>|<row|<cell|>|<cell|>|<cell|<hspace|2>
     \ \ \ <space|1em> \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <hspace|1>
     \ \ \ \ \ \ \ S<rsub|2>=<math-it|mgu><around*|(|\<beta\>,\<tau\><rsub|1>|)>>>|<row|<cell|>|<cell|>|<cell|<hspace|1>
-    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <around*|(|S<rsub|3>,\<tau\><rsub|2>|)>=\<cal-W\><around*|(|S<rsub|2>\<Gamma\><rsup|<rprime|'>>,e<rsub|2>|)>>>|<row|<cell|>|<cell|>|<cell|<math-bf|
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <around*|(|S<rsub|3>,\<tau\><rsub|2>|)>=\<cal-W\><around*|(|S<rsub|2>\<Gamma\><rsup|<rprime|'>><rsub|\<setminus\>x>\<cup\><around*|{|x:<math-it|generalize><around*|(|S<rsub|2>\<Gamma\><rsup|<rprime|'>>,\<tau\><rsub|1>|)>|}>,e<rsub|2>|)>>>|<row|<cell|>|<cell|>|<cell|<math-bf|
     in><hspace|2> \ \ \ \ \ <around*|(|S<rsub|3>\<circ\>S<rsub|2>\<circ\>S<rsub|1>,\<tau\><rsub|2>|)>>>>>
   </eqnarray*>
 

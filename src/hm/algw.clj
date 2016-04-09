@@ -106,7 +106,8 @@
                                 ext-env  (env-replace [n (Mono fresh-tv)] env)
                                 [subrule1 e-mono] (algw ext-env expr)
                                 subrule2 (unify fresh-tv e-mono)
-                                [subrule3 b-mono] (algw (subst-env subrule2 ext-env) body)]
+                                s2-env (subst-env subrule2 ext-env)
+                                [subrule3 b-mono] (algw (env-replace [n (generalize s2-env e-mono)] s2-env) body)]
                             [(compose subrule3 (compose subrule2 subrule1)) b-mono])
     :else [{} (throw (Exception. (format "unknown type for give expression %s" expr)))]))
 
