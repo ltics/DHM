@@ -2,29 +2,8 @@
   (require [adt.sweet :refer :all]
            [hm.syntax :refer :all]
            [hm.env :refer :all]
-           [hm.subst :refer :all]))
-
-(defn occurs
-  "prevents inference of infinite types
-   a ~ a -> b => a ~ ((... -> b) -> b) -> b"
-  [tvname t]
-  #_(match t
-      (TVar name) (= tvname name)
-      (TFun lmono rmono) (or (occurs tvname lmono) (occurs tvname rmono))
-      :else false)
-  (contains? (ftv (Mono t)) tvname))
-
-(defn throw-occurs-exp
-  [m1 m2]
-  (throw (Exception. (format "occurs check fails: %s vs. %s"
-                             (s-of-m m1)
-                             (s-of-m m2)))))
-
-(defn throw-unify-exp
-  [m1 m2]
-  (throw (Exception. (format "types do not unify: %s vs. %s"
-                             (s-of-m m1)
-                             (s-of-m m2)))))
+           [hm.subst :refer :all]
+           [hm.error :refer :all]))
 
 (defn unify
   "unification of two monotypes, return the subrule t ~ t' : s
@@ -41,6 +20,8 @@
     (match mono1
       (TVar n1) (match mono2
                   (TVar n2) (if (= n1 n2) {} {n1 mono2})
+                  ;; prevents inference of infinite types
+                  ;; e.g. λf -> f f => a ~ a → b => a ~ ((… → b) → b) → b
                   :else (if-not (occurs n1 mono2)
                           {n1 mono2}
                           (throw-occurs-exp mono1 mono2)))
@@ -75,7 +56,7 @@
   (match expr
     (EVar n) (let [t (if (contains? env n)
                        (instantiate (env n))
-                       (throw (Exception. (format "unbound variable: %s" n))))]
+                       (throw-unbound-exp n))]
                [{} t])
     (ELit lit) (let [lit-mono (match lit
                                 (LInt _) (TPrm PInt)
@@ -95,9 +76,7 @@
                                 [(compose subrule3 (compose subrule2 subrule1))
                                  (submono subrule3 fresh-tv)])
                               (catch Exception e
-                                (throw (Exception. (format "%s in %s"
-                                                           (.getMessage e)
-                                                           (s-of-expr expr)))))))
+                                (throw-innerexpr-exp e expr))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subst-env subrule1 env)
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
@@ -109,7 +88,7 @@
                                 s2-env (subst-env subrule2 ext-env)
                                 [subrule3 b-mono] (algw (env-replace [n (generalize s2-env e-mono)] s2-env) body)]
                             [(compose subrule3 (compose subrule2 subrule1)) b-mono])
-    :else [{} (throw (Exception. (format "unknown type for give expression %s" expr)))]))
+    :else (throw-unknown-exp expr)))
 
 (defn infer
   "type inference wrapper, infer(env, expr) -> type, basicly a monotype returned"

@@ -36,20 +36,6 @@
   (Mono mono)
   (Poly tvnames mono))
 
-(defn ftv
-  "return the set of free type variable names"
-  [t]
-  (match t
-    (Mono mono) (match mono
-                  (TVar tvname) #{tvname}
-                  (TFun lmono rmono) (clojure.set/union (ftv (Mono lmono))
-                                                        (ftv (Mono rmono)))
-                  (TList mono) (ftv (Mono mono))
-                  (TPair lmono rmono) (clojure.set/union (ftv (Mono lmono))
-                                                         (ftv (Mono rmono)))
-                  :else #{})
-    (Poly tvnames mono) (clojure.set/difference (ftv (Mono mono)) tvnames)))
-
 (def fresh-state (atom 0))
 
 (defn pick-fresh-tvname

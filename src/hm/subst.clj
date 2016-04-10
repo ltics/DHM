@@ -35,6 +35,18 @@
                                            (into {}))]
                           (Poly tvnames (submono subrule mono)))))
 
+(defn subconstraints
+  [subrule cs]
+  (mapv (fn [[l r]]
+          [(submono subrule l) (submono subrule r)])
+        cs))
+
+(defn >=>
+  [c cs]
+  (-> c
+      (cons cs)
+      vec))
+
 (defn compose
   "compose subrule s2 @@ s1 = s2 (s1 t) just like function composition"
   [subrule2 subrule1]
@@ -43,3 +55,27 @@
               (map (fn [[tvname mono]]
                      [tvname (submono subrule2 mono)]))
               (into {}))))
+
+(defn ftv
+  "return the set of free type variable names"
+  [t]
+  (match t
+    (Mono mono) (match mono
+                  (TVar tvname) #{tvname}
+                  (TFun lmono rmono) (clojure.set/union (ftv (Mono lmono))
+                                                        (ftv (Mono rmono)))
+                  (TList mono) (ftv (Mono mono))
+                  (TPair lmono rmono) (clojure.set/union (ftv (Mono lmono))
+                                                         (ftv (Mono rmono)))
+                  :else #{})
+    (Poly tvnames mono) (clojure.set/difference (ftv (Mono mono)) tvnames)))
+
+(defn occurs
+  "prevents inference of infinite types
+   a ~ a -> b => a ~ ((... -> b) -> b) -> b"
+  [tvname t]
+  #_(match t
+      (TVar name) (= tvname name)
+      (TFun lmono rmono) (or (occurs tvname lmono) (occurs tvname rmono))
+      :else false)
+  (contains? (ftv (Mono t)) tvname))
