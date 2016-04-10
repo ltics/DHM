@@ -22,7 +22,7 @@
   (reduce (fn [ftvset [_ poly]]
             (clojure.set/union ftvset (ftv poly))) #{} env))
 
-(defn subst-env
+(defn subenv
   "substitute type variable binding (tvname:poly) with (tvname:subst(poly))"
   [subrule env]
   (->> env

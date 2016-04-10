@@ -69,7 +69,7 @@
                             abs-mono (TFun (submono subrule fresh-tv) mono)]
                         [subrule abs-mono])
     (EApp lexpr rexpr) (let [[subrule1 mono1] (algw env lexpr)
-                             [subrule2 mono2] (algw (subst-env subrule1 env) rexpr)
+                             [subrule2 mono2] (algw (subenv subrule1 env) rexpr)
                              fresh-tv (TVar (pick-fresh-tvname))]
                          (try (let [subrule3 (unify (submono subrule2 mono1)
                                                     (TFun mono2 fresh-tv))]
@@ -78,14 +78,14 @@
                               (catch Exception e
                                 (throw-innerexpr-exp e expr))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
-                             s1-env (subst-env subrule1 env)
+                             s1-env (subenv subrule1 env)
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
                          [(compose subrule2 subrule1) b-mono])
     (ELetRec n expr body) (let [fresh-tv (TVar (pick-fresh-tvname))
                                 ext-env  (env-replace [n (Mono fresh-tv)] env)
                                 [subrule1 e-mono] (algw ext-env expr)
                                 subrule2 (unify fresh-tv e-mono)
-                                s2-env (subst-env subrule2 ext-env)
+                                s2-env   (subenv subrule2 ext-env)
                                 [subrule3 b-mono] (algw (env-replace [n (generalize s2-env e-mono)] s2-env) body)]
                             [(compose subrule3 (compose subrule2 subrule1)) b-mono])
     :else (throw-unknown-exp expr)))
