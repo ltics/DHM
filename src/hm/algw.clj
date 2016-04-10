@@ -117,4 +117,5 @@
   (try (let [[_ mono] (algw env expr)]
          mono)
        (catch Exception e
-         (TError (.getMessage e)))))
+         (TError (.getMessage e)))
+       (finally (reset! fresh-state 0))))
