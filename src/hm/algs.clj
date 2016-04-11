@@ -21,13 +21,21 @@
                           :else (throw-unify-exp mono1 mono2))]
       (match mono1
         (TVar n1) (match mono2
-                    (TVar n2) (when (= n1 n2)
-                                (unify subrule cs))
+                    (TVar n2) (if (= n1 n2)
+                                (unify subrule cs)
+                                (let [subst {n1 mono2}]
+                                  (unify (compose subst subrule)
+                                         (subconstraints subst cs))))
                     :else (if-not (occurs n1 mono2)
                             (let [subst {n1 mono2}]
                               (unify (compose subst subrule)
                                      (subconstraints subst cs)))
                             (throw-occurs-exp mono1 mono2)))
+        (TPrm p1) (match mono2
+                    (TPrm p2) (if (= p1 p2)
+                                (unify subrule cs)
+                                (throw-unify-exp mono1 mono2))
+                    :else (match-m2-tvar))
         (TFun lm1 rm1) (match mono2
                          (TFun lm2 rm2) (unify subrule
                                                (>=> [lm1 lm2]
@@ -42,6 +50,10 @@
                        (instantiate (env n))
                        (throw-unbound-exp n))]
                [[] t])
+    (ELit lit) (let [lit-mono (match lit
+                                (LInt _) (TPrm PInt)
+                                (LBool _) (TPrm PBool))]
+                 [[] lit-mono])
     (EAbs vname expr) (let [fresh-tv (TVar (pick-fresh-tvname))
                             new-env  (env-replace [vname (Mono fresh-tv)] env)
                             [cs mono] (algs new-env expr)]

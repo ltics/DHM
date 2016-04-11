@@ -63,6 +63,14 @@
                                 (LBool _) (TPrm PBool))]
                  [{} lit-mono])
     (EAbs vname expr) (let [fresh-tv (TVar (pick-fresh-tvname))
+                            ;; (algw (env-replace [vname (generalize env fresh-tv)] env) expr)
+                            ;; it is meaningless to allow polymorphic lambda abstraction
+                            ;; e.g. expr: λid -> pair (id true) (id 3) and the assumptions will be {id ∀a. a}
+                            ;; the subexpr (id true) will just be unify(instantiate(∀a. a), bool -> b) => unify(a, bool -> b)
+                            ;; but in let-polymorphism it will be something like unify(a -> a, bool -> b)
+                            ;; it just can not determine the return type of b
+                            ;; so the type of λid -> pair (id true) (id 3) in generalize lambda abstraction
+                            ;; will be something like a -> (e * h) just not make any sense
                             [subrule mono] (algw (env-replace [vname (Mono fresh-tv)]
                                                               env)
                                                  expr)

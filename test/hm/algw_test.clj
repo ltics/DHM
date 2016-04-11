@@ -59,15 +59,7 @@
                           (EAbs "g"
                                 (EAbs "arg"
                                       (EApp (EVar "g")
-                                            (EApp (EVar "f") (EVar "arg"))))))
-          ;; let-polymorphism, prenex polymorphism or more generally rank-1 polymorphism
-          expr12    (ELet "f"
-                          (EAbs "x" (EVar "x"))
-                          (ELet "p"
-                                (EApp (EApp (EVar "pair")
-                                            (EApp (EVar "f") (ELit (LInt 3))))
-                                      (EApp (EVar "f") (ELit (LBool true))))
-                                (EVar "p")))]
+                                            (EApp (EVar "f") (EVar "arg"))))))]
       (is= (s-of-m (infer {} fun-id))
            "a -> a")
       (is= (s-of-m (infer {} fun-true))
@@ -91,8 +83,7 @@
       (is= (s-of-m (infer {} expr8)) "(int -> h) -> h")
       (is= (s-of-m (infer {} expr9)) "occurs check fails: d vs. d -> e in b (a (a b))")
       (is= (s-of-m (infer {} expr10)) "int")
-      (is= (s-of-m (infer {} expr11)) "(c -> d) -> (d -> e) -> c -> e")
-      (is= (s-of-m (infer common-env expr12)) "(int * bool)")))
+      (is= (s-of-m (infer {} expr11)) "(c -> d) -> (d -> e) -> c -> e")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0 (EApp (EApp (EVar "pair")
@@ -141,7 +132,22 @@
                                      (EApp (EVar "succ")
                                            (EApp (EVar "len")
                                                  (EApp (EVar "tail") (EVar "xs"))))))
-                         (EVar "len"))]
+                         (EVar "len"))
+          ;; let-polymorphism, prenex polymorphism or more generally rank-1 polymorphism
+          expr8 (ELet "f"
+                      (EAbs "x" (EVar "x"))
+                      (ELet "p"
+                            (EApp (EApp (EVar "pair")
+                                        (EApp (EVar "f") (ELit (LInt 3))))
+                                  (EApp (EVar "f") (ELit (LBool true))))
+                            (EVar "p")))
+          ;; not allow polymorphic lambda abstraction
+          expr9 (EAbs "id"
+                      (EApp (EApp (EVar "pair")
+                                  (EApp (EVar "id")
+                                        (ELit (LBool true))))
+                            (EApp (EVar "id")
+                                  (ELit (LInt 3)))))]
       (is= (s-of-m (infer common-env expr0)) "(int * int)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f")
       (is= (s-of-m (infer common-env expr2)) "(int -> f) -> (f * f)")
@@ -149,7 +155,9 @@
       (is= (s-of-m (infer common-env expr4)) "(int * bool)")
       (is= (s-of-m (infer common-env expr5)) "i -> (i * i)")
       (is= (s-of-m (infer common-env expr6)) "int")
-      (is= (s-of-m (infer common-env expr7)) "[d] -> int")))
+      (is= (s-of-m (infer common-env expr7)) "[d] -> int")
+      (is= (s-of-m (infer common-env expr8)) "(int * bool)")
+      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in id 3")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"
