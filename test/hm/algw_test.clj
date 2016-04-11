@@ -59,13 +59,28 @@
                           (EAbs "g"
                                 (EAbs "arg"
                                       (EApp (EVar "g")
-                                            (EApp (EVar "f") (EVar "arg"))))))]
+                                            (EApp (EVar "f") (EVar "arg"))))))
+          expr12    (EApp (EVar "id")
+                          (EApp (EVar "id")
+                                (ELit (LInt 3))))
+          expr13    (EApp (EApp (EVar "compose")
+                                (EVar "not"))
+                          (EApp (EVar "eq")
+                                (ELit (LInt 3))))
+          expr14    (EApp (EApp (EVar "add")
+                                (ELit (LBool true)))
+                          (ELit (LBool false)))
+          ;; compose1 (b -> c) -> ((a -> b) -> (a -> c))
+          ;; compose2 (e -> f) -> ((d -> e) -> (d -> f))
+          ;; just substitution game
+          expr15    (EApp (EVar "compose")
+                          (EVar "compose"))]
       (is= (s-of-m (infer {} fun-id))
            "a -> a")
       (is= (s-of-m (infer {} fun-true))
-           "a -> b -> a")
+           "a -> (b -> a)")
       (is= (s-of-m (infer {} fun-false))
-           "a -> b -> b")
+           "a -> (b -> b)")
       (is= (s-of-m (infer {} e-true))
            (s-of-m (infer {} e-false))
            "bool")
@@ -83,7 +98,11 @@
       (is= (s-of-m (infer {} expr8)) "(int -> h) -> h")
       (is= (s-of-m (infer {} expr9)) "occurs check fails: d vs. d -> e in b (a (a b))")
       (is= (s-of-m (infer {} expr10)) "int")
-      (is= (s-of-m (infer {} expr11)) "(c -> d) -> (d -> e) -> c -> e")))
+      (is= (s-of-m (infer {} expr11)) "(c -> d) -> ((d -> e) -> (c -> e))")
+      (is= (s-of-m (infer common-env expr12)) "int")
+      (is= (s-of-m (infer common-env expr13)) "int -> bool")
+      (is= (s-of-m (infer common-env expr14)) "types do not unify: int vs. bool in add true")
+      (is= (s-of-m (infer common-env expr15)) "(a -> (e -> f)) -> (a -> ((d -> e) -> (d -> f)))")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0 (EApp (EApp (EVar "pair")

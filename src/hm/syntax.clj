@@ -65,12 +65,20 @@
                   PBool "bool")
     (TVar name) (s-of-tvn name)
     (TFun lmono rmono) (match lmono
-                         (TFun _) (format "(%s) -> %s"
-                                          (s-of-m lmono)
-                                          (s-of-m rmono))
-                         :else (format "%s -> %s"
-                                       (s-of-m lmono)
-                                       (s-of-m rmono)))
+                         (TFun _) (match rmono
+                                    (TFun _) (format "(%s) -> (%s)"
+                                                     (s-of-m lmono)
+                                                     (s-of-m rmono))
+                                    :else (format "(%s) -> %s"
+                                                  (s-of-m lmono)
+                                                  (s-of-m rmono)))
+                         :else (match rmono
+                                 (TFun _) (format "%s -> (%s)"
+                                                  (s-of-m lmono)
+                                                  (s-of-m rmono))
+                                 :else (format "%s -> %s"
+                                               (s-of-m lmono)
+                                               (s-of-m rmono))))
     (TList mono) (format "[%s]" (s-of-m mono))
     (TPair lmono rmono) (format "(%s * %s)"
                                 (s-of-m lmono)
