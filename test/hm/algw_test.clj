@@ -74,7 +74,10 @@
           ;; compose2 (e -> f) -> ((d -> e) -> (d -> f))
           ;; just substitution game
           expr15    (EApp (EVar "compose")
-                          (EVar "compose"))]
+                          (EVar "compose"))
+          expr16    (EApp (EApp (EVar "and")
+                                (ELit (LBool true)))
+                          (ELit (LBool false)))]
       (is= (s-of-m (infer {} fun-id))
            "a -> a")
       (is= (s-of-m (infer {} fun-true))
@@ -102,7 +105,8 @@
       (is= (s-of-m (infer common-env expr12)) "int")
       (is= (s-of-m (infer common-env expr13)) "int -> bool")
       (is= (s-of-m (infer common-env expr14)) "types do not unify: int vs. bool in add true")
-      (is= (s-of-m (infer common-env expr15)) "(a -> (e -> f)) -> (a -> ((d -> e) -> (d -> f)))")))
+      (is= (s-of-m (infer common-env expr15)) "(a -> (e -> f)) -> (a -> ((d -> e) -> (d -> f)))")
+      (is= (s-of-m (infer common-env expr16)) "bool")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0 (EApp (EApp (EVar "pair")

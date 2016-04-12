@@ -16,7 +16,12 @@
   (EAbs vname expr)
   (EApp lexpr rexpr)
   (ELet vname expr body)
-  (ELetRec vname expr body))
+  (ELetRec vname expr body)
+  ;; extra terms for algs
+  (ESucc num)
+  (EPred num)
+  (EIsZero num)
+  (EIf pred consequent alternative))
 
 ;; types
 
@@ -106,7 +111,14 @@
     (ELetRec n e b) (format "let rec %s = %s in %s"
                             n
                             (s-of-expr e)
-                            (s-of-expr b))))
+                            (s-of-expr b))
+    (ESucc num) (format "succ %s" (s-of-expr num))
+    (EPred num) (format "pred %s" (s-of-expr num))
+    (EIsZero num) (format "zero? %s" (s-of-expr num))
+    (EIf p c a) (format "if %s then %s else %s"
+                        (s-of-expr p)
+                        (s-of-expr c)
+                        (s-of-expr a))))
 
 (defn s-of-paren-expr
   "expr surround with parenthesis"

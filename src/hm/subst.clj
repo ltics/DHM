@@ -47,6 +47,9 @@
       (cons cs)
       vec))
 
+(defmacro concatv [& body]
+  `(into [] (concat ~@body)))
+
 (defn compose
   "compose subrule s2 @@ s1 = s2 (s1 t) just like function composition"
   [subrule2 subrule1]

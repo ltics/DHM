@@ -61,7 +61,7 @@
     (EApp lexpr rexpr) (let [[cs1 mono1] (algs env lexpr)
                              [cs2 mono2] (algs env rexpr)
                              fresh-tv (TVar (pick-fresh-tvname))]
-                         [(concat (>=> [mono1 (TFun mono2 fresh-tv)] cs2) cs1) fresh-tv])
+                         [(concatv (>=> [mono1 (TFun mono2 fresh-tv)] cs1) cs2) fresh-tv])
     (ELet n expr body) (let [[cs1 e-mono] (algs env expr)
                              subrule (unify {} cs1)
                              s-env   (subenv subrule env)
@@ -69,7 +69,29 @@
                                                  (submono subrule e-mono))
                              new-env (env-replace [n e-poly] s-env)
                              [cs2 b-mono] (algs new-env body)]
-                         [(concat cs2 cs1) b-mono])))
+                         [(concatv cs1 cs2) b-mono])
+    (ELetRec n expr body) (let [fresh-tv (TVar (pick-fresh-tvname))
+                                ext-env  (env-replace [n (Mono fresh-tv)] env)
+                                [cs1 e-mono] (algs ext-env expr)
+                                subrule  (unify {} cs1)
+                                s-env    (subenv subrule ext-env)
+                                e-poly (generalize s-env (submono subrule e-mono))
+                                new-env (env-replace [n e-poly] s-env)
+                                [cs2 b-mono] (algs new-env body)]
+                            [(concatv cs1 cs2) b-mono])
+    ;; in algs extra type rule can not just put in assumptions
+    ;; should have explicit syntax definitions
+    (ESucc num) (let [[cs t] (algs env num)]
+                  [(>=> [t (TPrm PInt)] cs) (TPrm PInt)])
+    (EPred num) (let [[cs t] (algs env num)]
+                  [(>=> [t (TPrm PInt)] cs) (TPrm PInt)])
+    (EIsZero num) (let [[cs t] (algs env num)]
+                    [(>=> [t (TPrm PInt)] cs) (TPrm PBool)])
+    (EIf p c a) (let [[cs1 p-mono] (algs env p)
+                      [cs2 c-mono] (algs env c)
+                      [cs3 a-mono] (algs env a)
+                      cs [[p-mono (TPrm PBool)] [c-mono a-mono]]]
+                  [(concatv cs cs1 cs2 cs3) a-mono])))
 
 (defn infer
   "infer(env, expr) -> type"
