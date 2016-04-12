@@ -21,7 +21,13 @@
   (ESucc num)
   (EPred num)
   (EIsZero num)
-  (EIf pred consequent alternative))
+  (EIf pred consequent alternative)
+  ENil
+  (ECons e l)
+  (EHead list)
+  (ETail list)
+  (EIsEmpty list)
+  (EPair lexpr rexpr))
 
 ;; types
 
@@ -90,6 +96,15 @@
                                 (s-of-m rmono))
     (TError msg) msg))
 
+(defn s-of-t
+  "string of types"
+  [t]
+  (match t
+    (Poly vnames mono) (format "∀%s. %s"
+                               (clojure.string/join "" vnames)
+                               (s-of-m mono))
+    :else (s-of-m t)))
+
 (declare s-of-paren-expr)
 
 (defn s-of-expr
@@ -118,7 +133,17 @@
     (EIf p c a) (format "if %s then %s else %s"
                         (s-of-expr p)
                         (s-of-expr c)
-                        (s-of-expr a))))
+                        (s-of-expr a))
+    ENil "[]"
+    (ECons e l) (format "cons %s %s"
+                        (s-of-expr e)
+                        (s-of-expr l))
+    (EHead l) (format "head %s" (s-of-expr l))
+    (ETail l) (format "tail %s" (s-of-expr l))
+    (EIsEmpty l) (format "empty? %s" (s-of-expr l))
+    (EPair lexpr rexpr) (format "(%s, %s)"
+                                (s-of-expr lexpr)
+                                (s-of-expr rexpr))))
 
 (defn s-of-paren-expr
   "expr surround with parenthesis"

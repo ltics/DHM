@@ -40,7 +40,16 @@
                          (TFun lm2 rm2) (unify subrule
                                                (>=> [lm1 lm2]
                                                     (>=> [rm1 rm2] cs)))
-                         :else (match-m2-tvar))))))
+                         :else (match-m2-tvar))
+        (TList m1) (match mono2
+                     (TList m2) (unify subrule
+                                       (>=> [m1 m2] cs))
+                     :else (match-m2-tvar))
+        (TPair lm1 rm1) (match mono2
+                          (TPair lm2 rm2) (unify subrule
+                                                 (>=> [lm1 lm2]
+                                                      (>=> (rm1 rm2) cs)))
+                          :else (match-m2-tvar))))))
 
 (defn algs
   "algs(env, expr) -> (constraints, type)"
@@ -75,8 +84,8 @@
                                 [cs1 e-mono] (algs ext-env expr)
                                 subrule  (unify {} cs1)
                                 s-env    (subenv subrule ext-env)
-                                e-poly (generalize s-env (submono subrule e-mono))
-                                new-env (env-replace [n e-poly] s-env)
+                                e-poly   (generalize s-env (submono subrule e-mono))
+                                new-env  (env-replace [n e-poly] s-env)
                                 [cs2 b-mono] (algs new-env body)]
                             [(concatv cs1 cs2) b-mono])
     ;; in algs extra type rule can not just put in assumptions
@@ -91,7 +100,19 @@
                       [cs2 c-mono] (algs env c)
                       [cs3 a-mono] (algs env a)
                       cs [[p-mono (TPrm PBool)] [c-mono a-mono]]]
-                  [(concatv cs cs1 cs2 cs3) a-mono])))
+                  [(concatv cs cs1 cs2 cs3) a-mono])
+    ENil [[] (Poly #{"a"} (TList (TVar "a")))]
+    (ECons e l) (let [[cs1 e-mono] (algs env e)
+                      [cs2 l-mono] (algs env l)
+                      l-mono (instantiate l-mono)
+                      cs     [[l-mono (TList e-mono)]]]
+                  [(concatv cs cs1 cs2) l-mono])
+    (EIsEmpty l) (let [[l-cs l-mono] (algs env l)
+                       cs [l-mono (instantiate (Poly #{"a"} (TList (TVar "a"))))]]
+                   [(>=> cs l-cs) (TPrm PBool)])
+    (EPair lexpr rexpr) (let [[l-cs l-mono] (algs env lexpr)
+                              [r-cs r-mono] (algs env rexpr)]
+                          [(concatv l-cs r-cs) (TPair l-mono r-mono)])))
 
 (defn infer
   "infer(env, expr) -> type"
@@ -100,5 +121,7 @@
              s (unify {} cs)]
          (submono s mono))
        (catch Exception e
-         (TError (.getMessage e)))
+         (TError (format "%s in %s"
+                         (.getMessage e)
+                         (s-of-expr expr))))
        (finally (reset! fresh-state 0))))
