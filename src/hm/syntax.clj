@@ -20,8 +20,10 @@
   ;; extra terms for algs
   (ESucc num)
   (EPred num)
+  (ETimes lnum rnum)
   (EIsZero num)
   (EIf pred consequent alternative)
+  (EFix abs)
   ENil
   (ECons e l)
   (EHead list)
@@ -129,13 +131,17 @@
                             (s-of-expr b))
     (ESucc num) (format "succ %s" (s-of-expr num))
     (EPred num) (format "pred %s" (s-of-expr num))
+    (ETimes lnum rnum) (format "%s * %s"
+                               (s-of-expr lnum)
+                               (s-of-expr rnum))
     (EIsZero num) (format "zero? %s" (s-of-expr num))
     (EIf p c a) (format "if %s then %s else %s"
                         (s-of-expr p)
                         (s-of-expr c)
                         (s-of-expr a))
+    (EFix abs) (format "fix(%s)" (s-of-expr abs))
     ENil "[]"
-    (ECons e l) (format "cons %s %s"
+    (ECons e l) (format "%s :: %s"
                         (s-of-expr e)
                         (s-of-expr l))
     (EHead l) (format "head %s" (s-of-expr l))

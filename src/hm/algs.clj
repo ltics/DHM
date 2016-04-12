@@ -94,6 +94,11 @@
                   [(>=> [t (TPrm PInt)] cs) (TPrm PInt)])
     (EPred num) (let [[cs t] (algs env num)]
                   [(>=> [t (TPrm PInt)] cs) (TPrm PInt)])
+    (ETimes lnum rnum) (let [[cs1 l-mono] (algs env lnum)
+                             [cs2 r-mono] (algs env rnum)
+                             cs [[l-mono (TPrm PInt)]
+                                 [r-mono (TPrm PInt)]]]
+                         [(concatv cs cs1 cs2) (TPrm PInt)])
     (EIsZero num) (let [[cs t] (algs env num)]
                     [(>=> [t (TPrm PInt)] cs) (TPrm PBool)])
     (EIf p c a) (let [[cs1 p-mono] (algs env p)
@@ -101,6 +106,10 @@
                       [cs3 a-mono] (algs env a)
                       cs [[p-mono (TPrm PBool)] [c-mono a-mono]]]
                   [(concatv cs cs1 cs2 cs3) a-mono])
+    (EFix abs) (let [fresh-tv (TVar (pick-fresh-tvname))
+                     [cs t] (algs env abs)
+                     cs' [t (TFun fresh-tv fresh-tv)]]
+                 [(>=> cs' cs) fresh-tv])
     ENil [[] (Poly #{"a"} (TList (TVar "a")))]
     (ECons e l) (let [[cs1 e-mono] (algs env e)
                       [cs2 l-mono] (algs env l)

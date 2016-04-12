@@ -136,4 +136,44 @@
       (is= (s-of-m (infer common-env expr6)) "int")
       (is= (s-of-m (infer common-env expr7)) "[e] -> int")
       (is= (s-of-m (infer common-env expr8)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid -> (id true, id 3)"))))
+      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid -> (id true, id 3)")))
+  (testing "inference recursive function types"
+    (let [expr0 (ELetRec "factorial"
+                         (EAbs "n"
+                               (EIf (EIsZero (EVar "n"))
+                                    (ELit (LInt 1))
+                                    (ETimes (EVar "n")
+                                            (EApp (EVar "factorial")
+                                                  (EPred (EVar "n"))))))
+                         (EVar "factorial"))
+          expr1 (ELetRec "factorial"
+                         (EAbs "n"
+                               (EIf (EIsZero (EVar "n"))
+                                    (ELit (LInt 1))
+                                    (ETimes (EVar "n")
+                                            (EApp (EVar "factorial")
+                                                  (EPred (EVar "n"))))))
+                         (EApp (EVar "factorial") (ELit (LInt 5))))
+          ;; letrec is just a suger of let and fix point combinator
+          expr2 (ELet "factorial"
+                      (EFix (EAbs "factorial"
+                                  (EAbs "n"
+                                        (EIf (EIsZero (EVar "n"))
+                                             (ELit (LInt 1))
+                                             (ETimes (EVar "n")
+                                                     (EApp (EVar "factorial")
+                                                           (EPred (EVar "n"))))))))
+                      (EVar "factorial"))
+          expr3 (ELet "factorial"
+                      (EFix (EAbs "factorial"
+                                  (EAbs "n"
+                                        (EIf (EIsZero (EVar "n"))
+                                             (ELit (LInt 1))
+                                             (ETimes (EVar "n")
+                                                     (EApp (EVar "factorial")
+                                                           (EPred (EVar "n"))))))))
+                      (EApp (EVar "factorial") (ELit (LInt 5))))]
+      (is= (s-of-m (infer common-env expr0)) "int -> int")
+      (is= (s-of-m (infer common-env expr1)) "int")
+      (is= (s-of-m (infer common-env expr2)) "int -> int")
+      (is= (s-of-m (infer common-env expr3)) "int"))))
