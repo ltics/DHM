@@ -8,7 +8,8 @@
 
 (defadt ::lit
   (LInt value)
-  (LBool value))
+  (LBool value)
+  (LString value))
 
 (defadt ::expr
   (EVar vname)
@@ -41,7 +42,8 @@
 
 (defadt ::prim
   PInt
-  PBool)
+  PBool
+  PString)
 
 (defadt ::mono
   (TVar tvname)
@@ -81,7 +83,8 @@
   (match t
     (TPrm prim) (match prim
                   PInt "int"
-                  PBool "bool")
+                  PBool "bool"
+                  PString "string")
     (TVar name) (s-of-tvn name)
     (TFun lmono rmono) (match lmono
                          (TFun _) (match rmono
@@ -122,7 +125,8 @@
     (EVar name) name
     (ELit lit) (match lit
                  (LInt i) i
-                 (LBool b) (if b "true" "false"))
+                 (LBool b) (if b "true" "false")
+                 (LString s) (format "\"%s\"" s))
     (EAbs n e) (format "λ%s -> %s" n (s-of-expr e))
     (EApp le re) (format "%s %s"
                          (s-of-expr le)

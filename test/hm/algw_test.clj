@@ -109,68 +109,71 @@
       (is= (s-of-m (infer common-env expr16)) "bool")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
-    (let [expr0 (EApp (EApp (EVar "pair")
-                            (ELit (LInt 3)))
-                      (ELit (LInt 3)))
-          expr1 (EApp (EApp (EVar "pair")
-                            (EApp (EVar "f") (ELit (LInt 3))))
-                      (EApp (EVar "f") (ELit (LInt 3))))
-          expr2 (EAbs "f"
-                      (EApp (EApp (EVar "pair")
-                                  (EApp (EVar "f") (ELit (LInt 3))))
-                            (EApp (EVar "f") (ELit (LInt 3)))))
-          expr3 (EAbs "f"
-                      (EApp (EApp (EVar "pair")
-                                  (EApp (EVar "f") (ELit (LInt 3))))
-                            (EApp (EVar "f") (ELit (LBool true)))))
-          expr4 (ELet "f"
-                      (EAbs "x" (EVar "x"))
-                      (EApp (EApp (EVar "pair")
-                                  (EApp (EVar "f") (ELit (LInt 3))))
-                            (EApp (EVar "f") (ELit (LBool true)))))
-          expr5 (EAbs "g"
-                      (ELet "f"
-                            (EAbs "x" (EVar "g"))
-                            (EApp (EApp (EVar "pair")
-                                        (EApp (EVar "f") (ELit (LInt 3))))
-                                  (EApp (EVar "f") (ELit (LBool true))))))
+    (let [expr0  (EApp (EApp (EVar "pair")
+                             (ELit (LInt 3)))
+                       (ELit (LInt 3)))
+          expr1  (EApp (EApp (EVar "pair")
+                             (EApp (EVar "f") (ELit (LInt 3))))
+                       (EApp (EVar "f") (ELit (LInt 3))))
+          expr2  (EAbs "f"
+                       (EApp (EApp (EVar "pair")
+                                   (EApp (EVar "f") (ELit (LInt 3))))
+                             (EApp (EVar "f") (ELit (LInt 3)))))
+          expr3  (EAbs "f"
+                       (EApp (EApp (EVar "pair")
+                                   (EApp (EVar "f") (ELit (LInt 3))))
+                             (EApp (EVar "f") (ELit (LBool true)))))
+          expr4  (ELet "f"
+                       (EAbs "x" (EVar "x"))
+                       (EApp (EApp (EVar "pair")
+                                   (EApp (EVar "f") (ELit (LInt 3))))
+                             (EApp (EVar "f") (ELit (LBool true)))))
+          expr5  (EAbs "g"
+                       (ELet "f"
+                             (EAbs "x" (EVar "g"))
+                             (EApp (EApp (EVar "pair")
+                                         (EApp (EVar "f") (ELit (LInt 3))))
+                                   (EApp (EVar "f") (ELit (LBool true))))))
           ;; let rec len = λxs -> if (isempty xs) 0 (succ (len (tail xs))) in len (cons 0 nil)
-          expr6 (ELetRec "len"
-                         (EAbs "xs"
-                               (EApp (EApp (EApp (EVar "if")
-                                                 (EApp (EVar "isempty") (EVar "xs")))
-                                           (ELit (LInt 0)))
-                                     (EApp (EVar "succ")
-                                           (EApp (EVar "len")
-                                                 (EApp (EVar "tail") (EVar "xs"))))))
-                         (EApp (EVar "len")
-                               (EApp (EApp (EVar "cons")
-                                           (ELit (LInt 0)))
-                                     (EVar "nil"))))
-          expr7 (ELetRec "len"
-                         (EAbs "xs"
-                               (EApp (EApp (EApp (EVar "if")
-                                                 (EApp (EVar "isempty") (EVar "xs")))
-                                           (ELit (LInt 0)))
-                                     (EApp (EVar "succ")
-                                           (EApp (EVar "len")
-                                                 (EApp (EVar "tail") (EVar "xs"))))))
-                         (EVar "len"))
+          expr6  (ELetRec "len"
+                          (EAbs "xs"
+                                (EApp (EApp (EApp (EVar "if")
+                                                  (EApp (EVar "isempty") (EVar "xs")))
+                                            (ELit (LInt 0)))
+                                      (EApp (EVar "succ")
+                                            (EApp (EVar "len")
+                                                  (EApp (EVar "tail") (EVar "xs"))))))
+                          (EApp (EVar "len")
+                                (EApp (EApp (EVar "cons")
+                                            (ELit (LInt 0)))
+                                      (EVar "nil"))))
+          expr7  (ELetRec "len"
+                          (EAbs "xs"
+                                (EApp (EApp (EApp (EVar "if")
+                                                  (EApp (EVar "isempty") (EVar "xs")))
+                                            (ELit (LInt 0)))
+                                      (EApp (EVar "succ")
+                                            (EApp (EVar "len")
+                                                  (EApp (EVar "tail") (EVar "xs"))))))
+                          (EVar "len"))
           ;; let-polymorphism, prenex polymorphism or more generally rank-1 polymorphism
-          expr8 (ELet "f"
-                      (EAbs "x" (EVar "x"))
-                      (ELet "p"
-                            (EApp (EApp (EVar "pair")
-                                        (EApp (EVar "f") (ELit (LInt 3))))
-                                  (EApp (EVar "f") (ELit (LBool true))))
-                            (EVar "p")))
+          expr8  (ELet "f"
+                       (EAbs "x" (EVar "x"))
+                       (ELet "p"
+                             (EApp (EApp (EVar "pair")
+                                         (EApp (EVar "f") (ELit (LInt 3))))
+                                   (EApp (EVar "f") (ELit (LBool true))))
+                             (EVar "p")))
           ;; not allow polymorphic lambda abstraction
-          expr9 (EAbs "id"
-                      (EApp (EApp (EVar "pair")
-                                  (EApp (EVar "id")
-                                        (ELit (LBool true))))
-                            (EApp (EVar "id")
-                                  (ELit (LInt 3)))))]
+          expr9  (EAbs "id"
+                       (EApp (EApp (EVar "pair")
+                                   (EApp (EVar "id")
+                                         (ELit (LBool true))))
+                             (EApp (EVar "id")
+                                   (ELit (LInt 3)))))
+          expr10 (EApp (EApp (EVar "pair")
+                             (ELit (LString "term")))
+                       (ELit (LInt 3)))]
       (is= (s-of-m (infer common-env expr0)) "(int * int)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f")
       (is= (s-of-m (infer common-env expr2)) "(int -> f) -> (f * f)")
@@ -180,7 +183,8 @@
       (is= (s-of-m (infer common-env expr6)) "int")
       (is= (s-of-m (infer common-env expr7)) "[d] -> int")
       (is= (s-of-m (infer common-env expr8)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in id 3")))
+      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in id 3")
+      (is= (s-of-m (infer common-env expr10)) "(string * int)")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

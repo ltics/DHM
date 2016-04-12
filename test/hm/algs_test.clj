@@ -101,52 +101,54 @@
       (is= (s-of-m (infer common-env expr15)) "(b -> (h -> i)) -> (b -> ((g -> h) -> (g -> i)))")
       (is= (s-of-m (infer common-env expr16)) "bool")))
   (testing "inference compound types"
-    (let [expr0 (EPair (ELit (LInt 3))
-                       (ELit (LBool true)))
-          expr1 (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                       (EApp (EVar "f") (ELit (LInt 3))))
-          expr2 (EAbs "f"
-                      (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                             (EApp (EVar "f") (ELit (LInt 3)))))
-          expr3 (EAbs "f"
-                      (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                             (EApp (EVar "f") (ELit (LBool true)))))
-          expr4 (ELet "f"
-                      (EAbs "x" (EVar "x"))
-                      (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                             (EApp (EVar "f") (ELit (LBool true)))))
-          expr5 (EAbs "g"
-                      (ELet "f"
-                            (EAbs "x" (EVar "g"))
-                            (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                                   (EApp (EVar "f") (ELit (LBool true))))))
+    (let [expr0  (EPair (ELit (LInt 3))
+                        (ELit (LBool true)))
+          expr1  (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                        (EApp (EVar "f") (ELit (LInt 3))))
+          expr2  (EAbs "f"
+                       (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                              (EApp (EVar "f") (ELit (LInt 3)))))
+          expr3  (EAbs "f"
+                       (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                              (EApp (EVar "f") (ELit (LBool true)))))
+          expr4  (ELet "f"
+                       (EAbs "x" (EVar "x"))
+                       (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                              (EApp (EVar "f") (ELit (LBool true)))))
+          expr5  (EAbs "g"
+                       (ELet "f"
+                             (EAbs "x" (EVar "g"))
+                             (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                                    (EApp (EVar "f") (ELit (LBool true))))))
           ;; let rec len = λxs -> if (isempty xs) 0 (succ (len (tail xs))) in len (cons 0 nil)
-          expr6 (ELetRec "len"
-                         (EAbs "xs"
-                               (EIf (EIsEmpty (EVar "xs"))
-                                    (ELit (LInt 0))
-                                    (ESucc (EApp (EVar "len")
-                                                 (ETail (EVar "xs"))))))
-                         (EApp (EVar "len")
-                               (ECons (ELit (LInt 0)) ENil)))
-          expr7 (ELetRec "len"
-                         (EAbs "xs"
-                               (EIf (EIsEmpty (EVar "xs"))
-                                    (ELit (LInt 0))
-                                    (ESucc (EApp (EVar "len")
-                                                 (ETail (EVar "xs"))))))
-                         (EVar "len"))
+          expr6  (ELetRec "len"
+                          (EAbs "xs"
+                                (EIf (EIsEmpty (EVar "xs"))
+                                     (ELit (LInt 0))
+                                     (ESucc (EApp (EVar "len")
+                                                  (ETail (EVar "xs"))))))
+                          (EApp (EVar "len")
+                                (ECons (ELit (LInt 0)) ENil)))
+          expr7  (ELetRec "len"
+                          (EAbs "xs"
+                                (EIf (EIsEmpty (EVar "xs"))
+                                     (ELit (LInt 0))
+                                     (ESucc (EApp (EVar "len")
+                                                  (ETail (EVar "xs"))))))
+                          (EVar "len"))
           ;; let-polymorphism, prenex polymorphism or more generally rank-1 polymorphism
-          expr8 (ELet "f"
-                      (EAbs "x" (EVar "x"))
-                      (ELet "p"
-                            (EPair (EApp (EVar "f") (ELit (LInt 3)))
-                                   (EApp (EVar "f") (ELit (LBool true))))
-                            (EVar "p")))
+          expr8  (ELet "f"
+                       (EAbs "x" (EVar "x"))
+                       (ELet "p"
+                             (EPair (EApp (EVar "f") (ELit (LInt 3)))
+                                    (EApp (EVar "f") (ELit (LBool true))))
+                             (EVar "p")))
           ;; not allow polymorphic lambda abstraction
-          expr9 (EAbs "id"
-                      (EPair (EApp (EVar "id") (ELit (LBool true)))
-                             (EApp (EVar "id") (ELit (LInt 3)))))]
+          expr9  (EAbs "id"
+                       (EPair (EApp (EVar "id") (ELit (LBool true)))
+                              (EApp (EVar "id") (ELit (LInt 3)))))
+          expr10 (EPair (ELit (LString "term"))
+                        (ELit (LInt 3)))]
       (is= (s-of-m (infer common-env expr0)) "(int * bool)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f in (f 3, f 3)")
       (is= (s-of-m (infer common-env expr2)) "(int -> c) -> (c * c)")
@@ -156,7 +158,8 @@
       (is= (s-of-m (infer common-env expr6)) "int")
       (is= (s-of-m (infer common-env expr7)) "[e] -> int")
       (is= (s-of-m (infer common-env expr8)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid -> (id true, id 3)")))
+      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid -> (id true, id 3)")
+      (is= (s-of-m (infer {} expr10)) "(string * int)")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

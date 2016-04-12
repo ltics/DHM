@@ -67,7 +67,8 @@
                  [[] t])
       (ELit lit) (let [lit-mono (match lit
                                   (LInt _) (TPrm PInt)
-                                  (LBool _) (TPrm PBool))]
+                                  (LBool _) (TPrm PBool)
+                                  (LString _) (TPrm PString))]
                    [[] lit-mono])
       (EAbs vname expr) (let [fresh-tv (TVar (pick-fresh-tvname))
                               new-env  (env-replace [vname (Mono fresh-tv)] env)
