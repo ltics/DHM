@@ -21,9 +21,15 @@
   (ESucc num)
   (EPred num)
   (ETimes lnum rnum)
+  (EAdd lnum rnum)
   (EIsZero num)
   (EIf pred consequent alternative)
   (EFix abs)
+  (EId expr)
+  (ENot bool)
+  (EAnd lbool rbool)
+  (EEq lexpr rexpr)
+  (ECompose lfun rfun)
   ENil
   (ECons e l)
   (EHead list)
@@ -134,12 +140,26 @@
     (ETimes lnum rnum) (format "%s * %s"
                                (s-of-expr lnum)
                                (s-of-expr rnum))
+    (EAdd lnum rnum) (format "%s + %s"
+                             (s-of-expr lnum)
+                             (s-of-expr rnum))
     (EIsZero num) (format "zero? %s" (s-of-expr num))
     (EIf p c a) (format "if %s then %s else %s"
                         (s-of-expr p)
                         (s-of-expr c)
                         (s-of-expr a))
     (EFix abs) (format "fix(%s)" (s-of-expr abs))
+    (EId expr) (format "id(%s)" (s-of-expr expr))
+    (ENot bool) (format "¬ %s" (s-of-expr bool))
+    (EAnd lbool rbool) (format "%s ∧ %s"
+                               (s-of-expr lbool)
+                               (s-of-expr rbool))
+    (EEq lexpr rexpr) (format "%s ≡ %s"
+                              (s-of-expr lexpr)
+                              (s-of-expr rexpr))
+    (ECompose lfun rfun) (format "%s ∘ %s"
+                                 (s-of-expr lfun)
+                                 (s-of-expr rfun))
     ENil "[]"
     (ECons e l) (format "%s :: %s"
                         (s-of-expr e)

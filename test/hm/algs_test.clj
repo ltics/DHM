@@ -51,7 +51,22 @@
                           (EAbs "g"
                                 (EAbs "arg"
                                       (EApp (EVar "g")
-                                            (EApp (EVar "f") (EVar "arg"))))))]
+                                            (EApp (EVar "f") (EVar "arg"))))))
+          expr12    (EId (EId (ELit (LInt 3))))
+          expr13    (ECompose (EAbs "x" (ENot (EVar "x")))
+                              (EAbs "x" (EEq (ELit (LInt 3)) (EVar "x"))))
+          expr14    (EAdd (ELit (LBool true))
+                          (ELit (LBool false)))
+          ;; compose1 (b -> c) -> ((a -> b) -> (a -> c))
+          ;; compose2 (e -> f) -> ((d -> e) -> (d -> f))
+          ;; just substitution game
+          expr15    (EAbs "x"
+                          (ECompose (EAbs "y"
+                                          (EAbs "z"
+                                                (ECompose (EVar "y") (EVar "z"))))
+                                    (EVar "x")))
+          expr16    (EAnd (ELit (LBool true))
+                          (ELit (LBool false)))]
       (is= (s-of-m (infer {} fun-id))
            "a -> a")
       (is= (s-of-m (infer {} fun-true))
@@ -79,7 +94,12 @@
            "occurs check fails: d vs. d -> e in λa -> λb -> b (a (a b))")
       (is= (s-of-m (infer {} expr10)) "int")
       (is= (s-of-m (infer {} expr11))
-           "(c -> d) -> ((d -> e) -> (c -> e))")))
+           "(c -> d) -> ((d -> e) -> (c -> e))")
+      (is= (s-of-m (infer common-env expr12)) "int")
+      (is= (s-of-m (infer common-env expr13)) "int -> bool")
+      (is= (s-of-m (infer common-env expr14)) "types do not unify: bool vs. int in true + false")
+      (is= (s-of-m (infer common-env expr15)) "(b -> (h -> i)) -> (b -> ((g -> h) -> (g -> i)))")
+      (is= (s-of-m (infer common-env expr16)) "bool")))
   (testing "inference compound types"
     (let [expr0 (EPair (ELit (LInt 3))
                        (ELit (LBool true)))
