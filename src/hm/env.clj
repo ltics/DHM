@@ -53,7 +53,7 @@
                                               {} tvnames)]
                           (submono subrule mono))))
 
-(def common-env
+(def assumptions
   {"true"    (Mono (TPrm PBool))
    "false"   (Mono (TPrm PBool))
    "zero"    (Mono (TPrm PInt))
