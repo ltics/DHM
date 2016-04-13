@@ -1,8 +1,8 @@
 (ns hm.syntax
   (require [adt.sweet :refer :all]))
 
-;; vname -> varaible name
-;; tvname -> type variable name
+;; vname → varaible name
+;; tvname → type variable name
 
 ;; values
 
@@ -88,17 +88,17 @@
     (TVar name) (s-of-tvn name)
     (TFun lmono rmono) (match lmono
                          (TFun _) (match rmono
-                                    (TFun _) (format "(%s) -> (%s)"
+                                    (TFun _) (format "(%s) → (%s)"
                                                      (s-of-m lmono)
                                                      (s-of-m rmono))
-                                    :else (format "(%s) -> %s"
+                                    :else (format "(%s) → %s"
                                                   (s-of-m lmono)
                                                   (s-of-m rmono)))
                          :else (match rmono
-                                 (TFun _) (format "%s -> (%s)"
+                                 (TFun _) (format "%s → (%s)"
                                                   (s-of-m lmono)
                                                   (s-of-m rmono))
-                                 :else (format "%s -> %s"
+                                 :else (format "%s → %s"
                                                (s-of-m lmono)
                                                (s-of-m rmono))))
     (TList mono) (format "[%s]" (s-of-m mono))
@@ -127,7 +127,7 @@
                  (LInt i) i
                  (LBool b) (if b "true" "false")
                  (LString s) (format "\"%s\"" s))
-    (EAbs n e) (format "λ%s -> %s" n (s-of-expr e))
+    (EAbs n e) (format "λ%s → %s" n (s-of-expr e))
     (EApp le re) (format "%s %s"
                          (s-of-expr le)
                          (s-of-paren-expr re))

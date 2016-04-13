@@ -46,7 +46,7 @@
           expr10    (ELet "g"
                           (EAbs "f" (ELit (LInt 5)))
                           (EApp (EVar "g") (EVar "g")))
-          ;; λf -> λg -> λarg -> g (f arg)
+          ;; λf → λg → λarg → g (f arg)
           expr11    (EAbs "f"
                           (EAbs "g"
                                 (EAbs "arg"
@@ -57,8 +57,8 @@
                               (EAbs "x" (EEq (ELit (LInt 3)) (EVar "x"))))
           expr14    (EAdd (ELit (LBool true))
                           (ELit (LBool false)))
-          ;; compose1 (b -> c) -> ((a -> b) -> (a -> c))
-          ;; compose2 (e -> f) -> ((d -> e) -> (d -> f))
+          ;; compose1 (b → c) → ((a → b) → (a → c))
+          ;; compose2 (e → f) → ((d → e) → (d → f))
           ;; just substitution game
           expr15    (EAbs "x"
                           (ECompose (EAbs "y"
@@ -68,11 +68,11 @@
           expr16    (EAnd (ELit (LBool true))
                           (ELit (LBool false)))]
       (is= (s-of-m (infer {} fun-id))
-           "a -> a")
+           "a → a")
       (is= (s-of-m (infer {} fun-true))
-           "a -> (b -> a)")
+           "a → (b → a)")
       (is= (s-of-m (infer {} fun-false))
-           "a -> (b -> b)")
+           "a → (b → b)")
       (is= (s-of-m (infer {} e-true))
            (s-of-m (infer {} e-false))
            "bool")
@@ -80,25 +80,25 @@
            (s-of-m (infer {} e-2))
            "int")
       (is= (s-of-m (infer {} expr0)) "bool")
-      (is= (s-of-m (infer {} expr1)) "b -> b")
-      (is= (s-of-m (infer {} expr2)) "c -> c")
-      (is= (s-of-m (infer {} expr3)) "c -> c")
+      (is= (s-of-m (infer {} expr1)) "b → b")
+      (is= (s-of-m (infer {} expr2)) "c → c")
+      (is= (s-of-m (infer {} expr3)) "c → c")
       (is= (s-of-m (infer {} expr4)) "int")
       (is= (s-of-m (infer {} expr5))
-           "occurs check fails: a vs. a -> b in let id = λx -> x x in id")
-      (is= (s-of-m (infer {} expr6)) "(bool -> b) -> b")
+           "occurs check fails: a vs. a → b in let id = λx → x x in id")
+      (is= (s-of-m (infer {} expr6)) "(bool → b) → b")
       (is= (s-of-m (infer {} expr7))
-           "types do not unify: int vs. int -> a in 3 3")
-      (is= (s-of-m (infer {} expr8)) "(int -> h) -> h")
+           "types do not unify: int vs. int → a in 3 3")
+      (is= (s-of-m (infer {} expr8)) "(int → h) → h")
       (is= (s-of-m (infer {} expr9))
-           "occurs check fails: d vs. d -> e in λa -> λb -> b (a (a b))")
+           "occurs check fails: d vs. d → e in λa → λb → b (a (a b))")
       (is= (s-of-m (infer {} expr10)) "int")
       (is= (s-of-m (infer {} expr11))
-           "(c -> d) -> ((d -> e) -> (c -> e))")
+           "(c → d) → ((d → e) → (c → e))")
       (is= (s-of-m (infer common-env expr12)) "int")
-      (is= (s-of-m (infer common-env expr13)) "int -> bool")
+      (is= (s-of-m (infer common-env expr13)) "int → bool")
       (is= (s-of-m (infer common-env expr14)) "types do not unify: bool vs. int in true + false")
-      (is= (s-of-m (infer common-env expr15)) "(b -> (h -> i)) -> (b -> ((g -> h) -> (g -> i)))")
+      (is= (s-of-m (infer common-env expr15)) "(b → (h → i)) → (b → ((g → h) → (g → i)))")
       (is= (s-of-m (infer common-env expr16)) "bool")))
   (testing "inference compound types"
     (let [expr0  (EPair (ELit (LInt 3))
@@ -120,7 +120,7 @@
                              (EAbs "x" (EVar "g"))
                              (EPair (EApp (EVar "f") (ELit (LInt 3)))
                                     (EApp (EVar "f") (ELit (LBool true))))))
-          ;; let rec len = λxs -> if (isempty xs) 0 (succ (len (tail xs))) in len (cons 0 nil)
+          ;; let rec len = λxs → if (isempty xs) 0 (succ (len (tail xs))) in len (cons 0 nil)
           expr6  (ELetRec "len"
                           (EAbs "xs"
                                 (EIf (EIsEmpty (EVar "xs"))
@@ -151,14 +151,14 @@
                         (ELit (LInt 3)))]
       (is= (s-of-m (infer common-env expr0)) "(int * bool)")
       (is= (s-of-m (infer common-env expr1)) "unbound variable: f in (f 3, f 3)")
-      (is= (s-of-m (infer common-env expr2)) "(int -> c) -> (c * c)")
-      (is= (s-of-m (infer common-env expr3)) "types do not unify: int vs. bool in λf -> (f 3, f true)")
+      (is= (s-of-m (infer common-env expr2)) "(int → c) → (c * c)")
+      (is= (s-of-m (infer common-env expr3)) "types do not unify: int vs. bool in λf → (f 3, f true)")
       (is= (s-of-m (infer common-env expr4)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr5)) "f -> (f * f)")
+      (is= (s-of-m (infer common-env expr5)) "f → (f * f)")
       (is= (s-of-m (infer common-env expr6)) "int")
-      (is= (s-of-m (infer common-env expr7)) "[e] -> int")
+      (is= (s-of-m (infer common-env expr7)) "[e] → int")
       (is= (s-of-m (infer common-env expr8)) "(int * bool)")
-      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid -> (id true, id 3)")
+      (is= (s-of-m (infer common-env expr9)) "types do not unify: bool vs. int in λid → (id true, id 3)")
       (is= (s-of-m (infer {} expr10)) "(string * int)")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
@@ -196,7 +196,7 @@
                                                      (EApp (EVar "factorial")
                                                            (EPred (EVar "n"))))))))
                       (EApp (EVar "factorial") (ELit (LInt 5))))]
-      (is= (s-of-m (infer common-env expr0)) "int -> int")
+      (is= (s-of-m (infer common-env expr0)) "int → int")
       (is= (s-of-m (infer common-env expr1)) "int")
-      (is= (s-of-m (infer common-env expr2)) "int -> int")
+      (is= (s-of-m (infer common-env expr2)) "int → int")
       (is= (s-of-m (infer common-env expr3)) "int"))))
