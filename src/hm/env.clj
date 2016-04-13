@@ -76,4 +76,5 @@
    "isempty" (Poly #{"a"} (TFun (TList (TVar "a")) (TPrm PBool)))
    "head"    (Poly #{"a"} (TFun (TList (TVar "a")) (TVar "a")))
    "tail"    (Poly #{"a"} (TFun (TList (TVar "a")) (TList (TVar "a"))))
-   "pair"    (Poly #{"a" "b"} (TFun (TVar "a") (TFun (TVar "b") (TPair (TVar "a") (TVar "b")))))})
+   "pair"    (Poly #{"a" "b"} (TFun (TVar "a") (TFun (TVar "b") (TPair (TVar "a") (TVar "b")))))
+   "choose"  (Poly #{"a"} (TFun (TPair (TVar "a") (TVar "a")) (TVar "a")))})

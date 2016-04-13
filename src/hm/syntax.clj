@@ -116,7 +116,7 @@
                          (format "∀%s. %s"
                                  (->> vnames
                                       (map s-of-tvn)
-                                      (clojure.string/join ""))
+                                      (clojure.string/join ","))
                                  (s-of-m mono)))
     :else (s-of-m t)))
 

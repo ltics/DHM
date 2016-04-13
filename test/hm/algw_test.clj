@@ -77,11 +77,22 @@
                           (EVar "compose"))
           expr16    (EApp (EApp (EVar "and")
                                 (ELit (LBool true)))
-                          (ELit (LBool false)))]
+                          (ELit (LBool false)))
+          ;; unification magic
+          expr17    (EApp (EVar "choose")
+                          (EApp (EApp (EVar "pair")
+                                      (EAbs "x"
+                                            (EAbs "y"
+                                                  (EVar "x"))))
+                                (EAbs "x"
+                                      (EAbs "y"
+                                            (EVar "y")))))]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
            "a → (b → a)")
+      (is= (s-of-t (generalize {} (infer {} fun-true)))
+           "∀a,b. a → (b → a)")
       (is= (s-of-t (infer {} fun-false))
            "a → (b → b)")
       (is= (s-of-t (infer {} e-true))
@@ -106,7 +117,8 @@
       (is= (s-of-t (infer assumptions expr13)) "int → bool")
       (is= (s-of-t (infer assumptions expr14)) "types do not unify: int vs. bool in add true")
       (is= (s-of-t (infer assumptions expr15)) "(a → (e → f)) → (a → ((d → e) → (d → f)))")
-      (is= (s-of-t (infer assumptions expr16)) "bool")))
+      (is= (s-of-t (infer assumptions expr16)) "bool")
+      (is= (s-of-t (generalize {} (infer assumptions expr17))) "∀h. h → (h → h)")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0  (EApp (EApp (EVar "pair")
@@ -173,7 +185,10 @@
                                    (ELit (LInt 3)))))
           expr10 (EApp (EApp (EVar "pair")
                              (ELit (LString "term")))
-                       (ELit (LInt 3)))]
+                       (ELit (LInt 3)))
+          expr11 (EApp (EApp (EVar "cons")
+                             (EVar "id"))
+                       (EVar "nil"))]
       (is= (s-of-t (infer assumptions expr0)) "(int * int)")
       (is= (s-of-t (infer assumptions expr1)) "unbound variable: f")
       (is= (s-of-t (infer assumptions expr2)) "(int → f) → (f * f)")
@@ -184,7 +199,8 @@
       (is= (s-of-t (infer assumptions expr7)) "[d] → int")
       (is= (s-of-t (infer assumptions expr8)) "(int * bool)")
       (is= (s-of-t (infer assumptions expr9)) "types do not unify: bool vs. int in id 3")
-      (is= (s-of-t (infer assumptions expr10)) "(string * int)")))
+      (is= (s-of-t (infer assumptions expr10)) "(string * int)")
+      (is= (s-of-t (generalize {} (infer assumptions expr11))) "∀b. [b → b]")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

@@ -71,6 +71,8 @@
            "a → a")
       (is= (s-of-t (infer {} fun-true))
            "a → (b → a)")
+      (is= (s-of-t (generalize {} (infer {} fun-true)))
+           "∀a,b. a → (b → a)")
       (is= (s-of-t (infer {} fun-false))
            "a → (b → b)")
       (is= (s-of-t (infer {} e-true))
@@ -148,7 +150,9 @@
                        (EPair (EApp (EVar "id") (ELit (LBool true)))
                               (EApp (EVar "id") (ELit (LInt 3)))))
           expr10 (EPair (ELit (LString "term"))
-                        (ELit (LInt 3)))]
+                        (ELit (LInt 3)))
+          expr11 (ECons (EAbs "x" (EId (EVar "x")))
+                        ENil)]
       (is= (s-of-t (infer assumptions expr0)) "(int * bool)")
       (is= (s-of-t (infer assumptions expr1)) "unbound variable: f in (f 3, f 3)")
       (is= (s-of-t (infer assumptions expr2)) "(int → c) → (c * c)")
@@ -159,7 +163,8 @@
       (is= (s-of-t (infer assumptions expr7)) "[e] → int")
       (is= (s-of-t (infer assumptions expr8)) "(int * bool)")
       (is= (s-of-t (infer assumptions expr9)) "types do not unify: bool vs. int in λid → (id true, id 3)")
-      (is= (s-of-t (infer {} expr10)) "(string * int)")))
+      (is= (s-of-t (infer {} expr10)) "(string * int)")
+      (is= (s-of-t (generalize {} (infer {} expr11))) "∀b. [b → b]")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"
