@@ -88,6 +88,10 @@
                                 (throw-innerexpr-exp e expr))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subenv subrule1 env)
+                             ;; let-polymorphism
+                             ;; place new fresh type variables for each parametric placeholder
+                             ;; e.g. let id = λx → x in pair (id 3) (id true)
+                             ;; if no generalize here => types do not unify: int vs. bool in id true
                              [subrule2 b-mono] (algw (env-replace [n (generalize s1-env e-mono)] s1-env) body)]
                          [(compose subrule2 subrule1) b-mono])
     (ELetRec n expr body) (let [fresh-tv (TVar (pick-fresh-tvname))
