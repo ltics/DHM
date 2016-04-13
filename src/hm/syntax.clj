@@ -111,9 +111,13 @@
   "string of types"
   [t]
   (match t
-    (Poly vnames mono) (format "∀%s. %s"
-                               (clojure.string/join "" vnames)
-                               (s-of-m mono))
+    (Poly vnames mono) (if (empty? vnames)
+                         (s-of-m mono)
+                         (format "∀%s. %s"
+                                 (->> vnames
+                                      (map s-of-tvn)
+                                      (clojure.string/join ""))
+                                 (s-of-m mono)))
     :else (s-of-m t)))
 
 (declare s-of-paren-expr)
