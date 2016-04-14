@@ -79,14 +79,13 @@
                                 (ELit (LBool true)))
                           (ELit (LBool false)))
           ;; unification magic
-          expr17    (EApp (EVar "choose")
-                          (EApp (EApp (EVar "pair")
-                                      (EAbs "x"
-                                            (EAbs "y"
-                                                  (EVar "x"))))
+          expr17    (EApp (EApp (EVar "choose")
                                 (EAbs "x"
                                       (EAbs "y"
-                                            (EVar "y")))))]
+                                            (EVar "x"))))
+                          (EAbs "x"
+                                (EAbs "y"
+                                      (EVar "y"))))]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
@@ -118,7 +117,7 @@
       (is= (s-of-t (infer assumptions expr14)) "types do not unify: int vs. bool in add true")
       (is= (s-of-t (infer assumptions expr15)) "(a → (e → f)) → (a → ((d → e) → (d → f)))")
       (is= (s-of-t (infer assumptions expr16)) "bool")
-      (is= (s-of-t (generalize {} (infer assumptions expr17))) "∀h. h → (h → h)")))
+      (is= (s-of-t (generalize {} (infer assumptions expr17))) "∀f. f → (f → f)")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0  (EApp (EApp (EVar "pair")
