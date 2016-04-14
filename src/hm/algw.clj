@@ -105,18 +105,24 @@
                               (catch Exception e
                                 (throw-innerexpr-exp e expr))))
     (ECall fn-expr args) (let [[subrule fn-mono] (algw env fn-expr)]
-                           (match fn-mono
-                             (TArrow params return) (if (not= (count params) (count args))
-                                                      (throw-unexpected-number-args-exp expr)
-                                                      (let [subrule (reduce (fn [subst [param-type arg-type]]
-                                                                              (let [[_ t] (algw (subenv subst env) arg-type)
-                                                                                    s (unify (submono subst param-type) t)]
-                                                                                (compose s subst)))
-                                                                            subrule
-                                                                            (zipvec params
-                                                                                    args))]
-                                                        [subrule (submono subrule return)]))
-                             :else (throw-expected-func-exp fn-expr)))
+                           (letfn [(get-subrule [params]
+                                     (reduce (fn [subst [param-type arg-type]]
+                                               (let [[_ t] (algw (subenv subst env) arg-type)
+                                                     s (unify (submono subst param-type) t)]
+                                                 (compose s subst)))
+                                             subrule
+                                             (zipvec params
+                                                     args)))]
+                             (match fn-mono
+                               (TArrow params return) (if (not= (count params) (count args))
+                                                        (throw-unexpected-number-args-exp expr)
+                                                        (let [subrule (get-subrule params)]
+                                                          [subrule (submono subrule return)]))
+                               (TVar n) (let [params (mapv (fn [_] (TVar (pick-fresh-tvname))) args)
+                                              return (TVar (pick-fresh-tvname))]
+                                          (let [subrule (get-subrule params)]
+                                            [(compose {n (submono subrule (TArrow params return))} subrule) (submono subrule return)]))
+                               :else (throw-expected-func-exp fn-expr))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subenv subrule1 env)
                              ;; let-polymorphism

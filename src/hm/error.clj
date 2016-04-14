@@ -25,15 +25,15 @@
 
 (defn throw-unknown-exp
   [expr]
-  (throw (Exception. (format "unknown type for give expression %s"
+  (throw (Exception. (format "unknown type for give expression: %s"
                              (s-of-expr expr)))))
 
 (defn throw-expected-func-exp
   [expr]
-  (throw (Exception. (format "expected a function %s"
+  (throw (Exception. (format "expected a function: %s"
                              (s-of-expr expr)))))
 
 (defn throw-unexpected-number-args-exp
   [expr]
-  (throw (Exception. (format "unexpected number of arguments %s"
+  (throw (Exception. (format "unexpected number of arguments: %s"
                              (s-of-expr expr)))))
