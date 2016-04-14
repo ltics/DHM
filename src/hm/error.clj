@@ -1,5 +1,6 @@
 (ns hm.error
-  (require [hm.syntax :refer :all]))
+  (require [hm.ast :refer :all]
+           [hm.type :refer :all]))
 
 (defn throw-occurs-exp
   [m1 m2]

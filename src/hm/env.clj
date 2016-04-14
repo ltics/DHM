@@ -1,6 +1,6 @@
 (ns hm.env
   (require [adt.sweet :refer :all]
-           [hm.syntax :refer :all]
+           [hm.type :refer :all]
            [hm.subst :refer :all]))
 
 ;; environment is just mapping variable names to polytypes,

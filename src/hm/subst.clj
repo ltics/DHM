@@ -1,6 +1,6 @@
 (ns hm.subst
   (require [adt.sweet :refer :all]
-           [hm.syntax :refer :all]))
+           [hm.type :refer :all]))
 
 ;; substitution rule is just mapping type variable names to monotypes
 

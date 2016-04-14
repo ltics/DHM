@@ -1,6 +1,7 @@
 (ns hm.algw
   (require [adt.sweet :refer :all]
-           [hm.syntax :refer :all]
+           [hm.ast :refer :all]
+           [hm.type :refer :all]
            [hm.env :refer :all]
            [hm.subst :refer :all]
            [hm.error :refer :all]))

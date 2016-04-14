@@ -1,6 +1,7 @@
 (ns hm.algs-test
   (require [acolfut.sweet :refer :all]
-           [hm.syntax :refer :all]
+           [hm.ast :refer :all]
+           [hm.type :refer :all]
            [hm.env :refer :all]
            [hm.algs :refer :all]))
 
