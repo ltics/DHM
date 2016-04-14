@@ -19,6 +19,8 @@
                     (TVar tvname))
     (TFun lmono rmono) (TFun (submono subrule lmono)
                              (submono subrule rmono))
+    (TArrow monos mono) (TArrow (mapv #(submono subrule %) monos)
+                                (submono subrule mono))
     (TList mono) (TList (submono subrule mono))
     (TPair lmono rmono) (TPair (submono subrule lmono)
                                (submono subrule rmono))
@@ -50,6 +52,9 @@
 (defmacro concatv [& body]
   `(into [] (concat ~@body)))
 
+(defmacro zipvec [& vecs]
+  `(mapv (fn [& vals#] (vec vals#)) ~@vecs))
+
 (defn compose
   "compose subrule s2 @@ s1 = s2 (s1 t) just like function composition"
   [subrule2 subrule1]
@@ -67,6 +72,7 @@
                   (TVar tvname) #{tvname}
                   (TFun lmono rmono) (clojure.set/union (ftv (Mono lmono))
                                                         (ftv (Mono rmono)))
+                  (TArrow monos mono) (apply clojure.set/union (map #(ftv (Mono %)) (conj monos mono)))
                   (TList mono) (ftv (Mono mono))
                   (TPair lmono rmono) (clojure.set/union (ftv (Mono lmono))
                                                          (ftv (Mono rmono)))

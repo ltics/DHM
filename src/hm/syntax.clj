@@ -16,6 +16,9 @@
   (ELit lit)
   (EAbs vname expr)
   (EApp lexpr rexpr)
+  ;; support multiple args
+  (EFun vnames expr)
+  (ECall expr exprs)
   (ELet vname expr body)
   (ELetRec vname expr body)
   ;; extra terms for algs
@@ -49,6 +52,8 @@
   (TVar tvname)
   (TPrm prim)
   (TFun lmono rmono)
+  ;; support multiple args
+  (TArrow monos mono)
   (TList mono)
   (TPair lmono rmono)
   (TError msg))
@@ -101,6 +106,16 @@
                                  :else (format "%s → %s"
                                                (s-of-m lmono)
                                                (s-of-m rmono))))
+    (TArrow monos mono) (if (= (count monos) 1)
+                          (let [param-mono (first monos)]
+                            (format "%s → %s"
+                                    (s-of-m param-mono)
+                                    (s-of-m mono)))
+                          (format "(%s) → %s"
+                                  (->> monos
+                                       (map s-of-m)
+                                       (clojure.string/join ", "))
+                                  (s-of-m mono)))
     (TList mono) (format "[%s]" (s-of-m mono))
     (TPair lmono rmono) (format "(%s * %s)"
                                 (s-of-m lmono)
@@ -132,9 +147,17 @@
                  (LBool b) (if b "true" "false")
                  (LString s) (format "\"%s\"" s))
     (EAbs n e) (format "λ%s → %s" n (s-of-expr e))
+    (EFun ns e) (format "ƒ %s → %s"
+                        (clojure.string/join " " ns)
+                        (s-of-expr e))
     (EApp le re) (format "%s %s"
                          (s-of-expr le)
                          (s-of-paren-expr re))
+    (ECall f args) (format "%s(%s)"
+                           (s-of-expr f)
+                           (->> args
+                                (map s-of-expr)
+                                (clojure.string/join ", ")))
     (ELet n e b) (format "let %s = %s in %s"
                          n
                          (s-of-expr e)

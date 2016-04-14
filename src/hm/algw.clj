@@ -37,6 +37,15 @@
                                                       (s rm2))]
                                         (compose s2 s1))
                        :else (match-m2-tvar))
+      (TArrow params1 return1) (match mono2
+                                 (TArrow params2 return2) (reduce (fn [subst [m1 m2]]
+                                                                    (let [s (unify (submono subst m1)
+                                                                                   (submono subst m2))]
+                                                                      (compose s subst)))
+                                                                  {}
+                                                                  (zipvec (conj params1 return1)
+                                                                          (conj params2 return2)))
+                                 :else (match-m2-tvar))
       (TList m1) (match mono2
                    (TList m2) (unify m1 m2)
                    :else (match-m2-tvar))
@@ -77,6 +86,15 @@
                                                  expr)
                             abs-mono (TFun (submono subrule fresh-tv) mono)]
                         [subrule abs-mono])
+    (EFun vnames body) (let [fresh-tns  (mapv (fn [_] (TVar (pick-fresh-tvname))) vnames)
+                             fn-env     (reduce (fn [env [n t]]
+                                                  (env-replace [n (Mono t)] env))
+                                                env
+                                                (zipvec vnames
+                                                        fresh-tns))
+                             [subrule b-mono] (algw fn-env body)
+                             arrow-mono (TArrow (mapv (partial submono subrule) fresh-tns) b-mono)]
+                         [subrule arrow-mono])
     (EApp lexpr rexpr) (let [[subrule1 mono1] (algw env lexpr)
                              [subrule2 mono2] (algw (subenv subrule1 env) rexpr)
                              fresh-tv (TVar (pick-fresh-tvname))]
@@ -86,6 +104,19 @@
                                  (submono subrule3 fresh-tv)])
                               (catch Exception e
                                 (throw-innerexpr-exp e expr))))
+    (ECall fn-expr args) (let [[subrule fn-mono] (algw env fn-expr)]
+                           (match fn-mono
+                             (TArrow params return) (if (not= (count params) (count args))
+                                                      (throw-unexpected-number-args-exp expr)
+                                                      (let [subrule (reduce (fn [subst [param-type arg-type]]
+                                                                              (let [[_ t] (algw (subenv subst env) arg-type)
+                                                                                    s (unify (submono subst param-type) t)]
+                                                                                (compose s subst)))
+                                                                            subrule
+                                                                            (zipvec params
+                                                                                    args))]
+                                                        [subrule (submono subrule return)]))
+                             :else (throw-expected-func-exp fn-expr)))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subenv subrule1 env)
                              ;; let-polymorphism
