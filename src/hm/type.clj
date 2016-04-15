@@ -68,9 +68,13 @@
                                                (s-of-m rmono))))
     (TArrow monos mono) (if (= (count monos) 1)
                           (let [param-mono (first monos)]
-                            (format "%s → %s"
-                                    (s-of-m param-mono)
-                                    (s-of-m mono)))
+                            (match param-mono
+                              (TArrow _) (format "(%s) → %s"
+                                                 (s-of-m param-mono)
+                                                 (s-of-m mono))
+                              :else (format "%s → %s"
+                                            (s-of-m param-mono)
+                                            (s-of-m mono))))
                           (format "(%s) → %s"
                                   (->> monos
                                        (map s-of-m)

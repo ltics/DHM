@@ -88,5 +88,6 @@
    "second"  (Poly #{"a" "b"} (TFun (TPair (TVar "a") (TVar "b")) (TVar "b")))
    "apply"   (Poly #{"a" "b"} (TFun (TFun (TVar "a") (TVar "b")) (TFun (TVar "a") (TVar "b"))))
    "applya"  (Poly #{"a" "b"} (TArrow [(TFun (TVar "a") (TVar "b")) (TVar "a")] (TVar "b")))
+   "applyaa" (Poly #{"a" "b"} (TArrow [(TArrow [(TVar "a")] (TVar "b")) (TVar "a")] (TVar "b")))
    "choose"  (Poly #{"a"} (TFun (TVar "a") (TFun (TVar "a") (TVar "a"))))
    "choosea" (Poly #{"a"} (TArrow [(TVar "a") (TVar "a")] (TVar "a")))})

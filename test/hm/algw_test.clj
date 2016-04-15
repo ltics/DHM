@@ -94,7 +94,79 @@
                                   (EVar "b"))])
           expr19    (ECall (EVar "consa")
                            [(EVar "id")
-                            (EVar "nil")])]
+                            (EVar "nil")])
+          expr20    (EFun ["g" "y"]
+                          (ECall (EVar "g")
+                                 [(EVar "y")]))
+          expr21    (EFun ["f"]
+                          (ELet "x"
+                                (EFun ["g" "y"]
+                                      (ELet "_"
+                                            (ECall (EVar "g")
+                                                   [(EVar "y")])
+                                            (ECall (EVar "eqa")
+                                                   [(EVar "f")
+                                                    (EVar "g")])))
+                                (EVar "x")))
+          expr22    (EApp (EApp (EVar "cons")
+                                (EVar "id"))
+                          (EApp (EApp (EVar "cons")
+                                      (EVar "succ"))
+                                (EApp (EApp (EVar "cons")
+                                            (EVar "id"))
+                                      (EVar "nil"))))
+          expr23    (EFun ["x"]
+                          (EFun ["y"]
+                                (ELet "x"
+                                      (ECall (EVar "x")
+                                             [(EVar "y")])
+                                      (EFun ["x"]
+                                            (ECall (EVar "y")
+                                                   [(EVar "x")])))))
+          expr24    (ELet "lst1"
+                          (EApp (EApp (EVar "cons")
+                                      (EVar "id"))
+                                (EVar "nil"))
+                          (ELet "lst2"
+                                (EApp (EApp (EVar "cons")
+                                            (EVar "succ"))
+                                      (EVar "lst1"))
+                                (EVar "lst2")))
+          expr25    (EFun ["x"]
+                          (ELet "y"
+                                (ELet "z"
+                                      (ECall (EVar "x")
+                                             [(EFun ["x"]
+                                                    (EVar "x"))])
+                                      (EVar "z"))
+                                (EVar "y")))
+          expr26    (ELet "apply"
+                          (EFun ["f" "x"]
+                                (ECall (EVar "f")
+                                       [(EVar "x")]))
+                          (EVar "apply"))
+          expr27    (ELet "apply_curry"
+                          (EFun ["f"]
+                                (EFun ["x"]
+                                      (ECall (EVar "f")
+                                             [(EVar "x")])))
+                          (EVar "apply_curry"))
+          expr28    (ELet "apply_abs"
+                          (EAbs "f"
+                                (EAbs "x"
+                                      (EApp (EVar "f")
+                                            (EVar "x"))))
+                          (EVar "apply_abs"))
+          expr29    (ECall (EVar "applya")
+                           [(EAbs "x"
+                                  (EApp (EVar "succ")
+                                        (EVar "x")))
+                            (EVar "zero")])
+          expr30    (ECall (EVar "applyaa")
+                           [(EFun ["x"]
+                                  (EApp (EVar "succ")
+                                        (EVar "x")))
+                            (EVar "zero")])]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
@@ -147,7 +219,36 @@
            "unexpected number of arguments: plus(3)")
       (is= (s-of-t (generalize {} (infer assumptions (ECall (EVar "zero")
                                                             [(ELit (LInt 3))]))))
-           "expected a function: zero")))
+           "expected a function: zero")
+      (is= (s-of-t (generalize {} (infer assumptions expr20)))
+           "∀b,d. (b → d, b) → d")
+      (is= (s-of-t (generalize {} (infer assumptions expr21)))
+           "∀e,c. (c → e) → (c → e, c) → bool")
+      (is= (s-of-t (generalize {} (infer assumptions expr22))) "[int → int]")
+      (is= (s-of-t (generalize {} (infer assumptions expr23))) "∀e,g,d. ((e → g) → d) → (e → g) → e → g")
+      (is= (s-of-t (generalize {} (infer assumptions expr24))) "[int → int]")
+      (is= (s-of-t (generalize {} (infer assumptions expr25))) "∀d,c. ((c → c) → d) → d")
+      (is= (s-of-t (generalize {} (infer assumptions (EApp (EApp (EVar "const")
+                                                                 (EVar "zero"))
+                                                           (EVar "true")))))
+           "int")
+      (is= (s-of-t (generalize {} (infer assumptions (EApp (EApp (EVar "apply")
+                                                                 (EAbs "x"
+                                                                       (EApp (EVar "succ")
+                                                                             (EVar "x"))))
+                                                           (EVar "true")))))
+           "types do not unify: int vs. bool in apply (λx → succ x) true")
+      (is= (s-of-t (generalize {} (infer assumptions (EApp (EApp (EVar "apply")
+                                                                 (EAbs "x"
+                                                                       (EApp (EVar "succ")
+                                                                             (EVar "x"))))
+                                                           (EVar "zero")))))
+           "int")
+      (is= (s-of-t (generalize {} (infer assumptions expr26))) "∀e,f. (e → f, e) → f")
+      (is= (s-of-t (generalize {} (infer assumptions expr27))) "∀e,f. (e → f) → e → f")
+      (is= (s-of-t (generalize {} (infer assumptions expr28))) "∀e,d. (d → e) → (d → e)")
+      (is= (s-of-t (generalize {} (infer assumptions expr29))) "int")
+      (is= (s-of-t (generalize {} (infer assumptions expr30))) "int")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0  (EApp (EApp (EVar "pair")

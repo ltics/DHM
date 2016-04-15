@@ -120,9 +120,10 @@
                                                         (let [subrule (get-subrule params)]
                                                           [subrule (submono subrule return)]))
                                (TVar n) (let [params (mapv (fn [_] (TVar (pick-fresh-tvname))) args)
+                                              subrule (get-subrule params)
                                               return (TVar (pick-fresh-tvname))]
-                                          (let [subrule (get-subrule params)]
-                                            [(compose {n (submono subrule (TArrow params return))} subrule) (submono subrule return)]))
+                                          [(compose {n (submono subrule (TArrow params return))} subrule)
+                                           (submono subrule return)])
                                :else (throw-expected-func-exp fn-expr))))
     (ELet n expr body) (let [[subrule1 e-mono] (algw env expr)
                              s1-env (subenv subrule1 env)
