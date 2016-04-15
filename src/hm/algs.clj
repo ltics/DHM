@@ -42,6 +42,15 @@
                                                (>=> [lm1 lm2]
                                                     (>=> [rm1 rm2] cs)))
                          :else (match-m2-tvar))
+        (TArrow args1 rtn1) (match mono2
+                              (TArrow args2 rtn2)
+                              (let [cs (reduce (fn [cs [m1 m2]]
+                                                 (>=> [m1 m2] cs))
+                                               cs
+                                               (zipvec (conj args1 rtn1)
+                                                       (conj args2 rtn2)))]
+                                (unify subrule cs))
+                              :else (match-m2-tvar))
         (TList m1) (match mono2
                      (TList m2) (unify subrule
                                        (>=> [m1 m2] cs))
@@ -75,10 +84,32 @@
                               new-env  (env-replace [vname (Mono fresh-tv)] env)
                               [cs mono] (algs new-env expr)]
                           [cs (TFun fresh-tv mono)])
+      (EFun vnames body) (let [fresh-tvs (mapv (fn [_] (TVar (pick-fresh-tvname))) vnames)
+                               fn-env    (reduce (fn [env [n t]]
+                                                   (env-replace [n (Mono t)] env))
+                                                 env
+                                                 (zipvec vnames
+                                                         fresh-tvs))
+                               [cs b-mono] (algs fn-env body)]
+                           [cs (TArrow fresh-tvs b-mono)])
       (EApp lexpr rexpr) (let [[cs1 mono1] (algs env lexpr)
                                [cs2 mono2] (algs env rexpr)
                                fresh-tv (TVar (pick-fresh-tvname))]
                            [(concatv (>=> [mono1 (TFun mono2 fresh-tv)] cs1) cs2) fresh-tv])
+      (ECall fn-expr args) (let [[fn-cs fn-mono] (algs env fn-expr)
+                                 arg-monos (mapv (fn [arg] (let [[cs t] (algs env arg)
+                                                                 s (unify {} cs)]
+                                                             (submono s t)))
+                                                 args)
+                                 fresh-tv  (TVar (pick-fresh-tvname))]
+                             (match fn-mono
+                               (TArrow params return)
+                               (if (not= (count params) (count args))
+                                 (throw-unexpected-number-args-exp expr)
+                                 [(>=> [fn-mono (TArrow arg-monos fresh-tv)] fn-cs) fresh-tv])
+                               (TVar n)
+                               [(>=> [fn-mono (TArrow arg-monos fresh-tv)] fn-cs) fresh-tv]
+                               :else (throw-expected-func-exp fn-expr)))
       (ELet n expr body) (let [[cs1 e-mono] (algs env expr)
                                subrule (unify {} cs1)
                                s-env   (subenv subrule env)

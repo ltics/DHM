@@ -38,15 +38,16 @@
                                                       (s rm2))]
                                         (compose s2 s1))
                        :else (match-m2-tvar))
-      (TArrow params1 return1) (match mono2
-                                 (TArrow params2 return2) (reduce (fn [subst [m1 m2]]
-                                                                    (let [s (unify (submono subst m1)
-                                                                                   (submono subst m2))]
-                                                                      (compose s subst)))
-                                                                  {}
-                                                                  (zipvec (conj params1 return1)
-                                                                          (conj params2 return2)))
-                                 :else (match-m2-tvar))
+      (TArrow args1 rtn1) (match mono2
+                            (TArrow args2 rtn2)
+                            (reduce (fn [subst [m1 m2]]
+                                      (let [s (unify (submono subst m1)
+                                                     (submono subst m2))]
+                                        (compose s subst)))
+                                    {}
+                                    (zipvec (conj args1 rtn1)
+                                            (conj args2 rtn2)))
+                            :else (match-m2-tvar))
       (TList m1) (match mono2
                    (TList m2) (unify m1 m2)
                    :else (match-m2-tvar))
@@ -87,14 +88,14 @@
                                                  expr)
                             abs-mono (TFun (submono subrule fresh-tv) mono)]
                         [subrule abs-mono])
-    (EFun vnames body) (let [fresh-tns  (mapv (fn [_] (TVar (pick-fresh-tvname))) vnames)
+    (EFun vnames body) (let [fresh-tvs  (mapv (fn [_] (TVar (pick-fresh-tvname))) vnames)
                              fn-env     (reduce (fn [env [n t]]
                                                   (env-replace [n (Mono t)] env))
                                                 env
                                                 (zipvec vnames
-                                                        fresh-tns))
+                                                        fresh-tvs))
                              [subrule b-mono] (algw fn-env body)
-                             arrow-mono (TArrow (mapv (partial submono subrule) fresh-tns) b-mono)]
+                             arrow-mono (TArrow (mapv (partial submono subrule) fresh-tvs) b-mono)]
                          [subrule arrow-mono])
     (EApp lexpr rexpr) (let [[subrule1 mono1] (algw env lexpr)
                              [subrule2 mono2] (algw (subenv subrule1 env) rexpr)
