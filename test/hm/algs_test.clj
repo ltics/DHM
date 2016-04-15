@@ -3,7 +3,8 @@
            [hm.ast :refer :all]
            [hm.type :refer :all]
            [hm.env :refer :all]
-           [hm.algs :refer :all]))
+           [hm.algs :refer :all]
+           [hm.normalize :refer :all]))
 
 (deftest algs-test
   (testing "inference normal types"
@@ -165,7 +166,7 @@
       (is= (s-of-t (infer assumptions expr8)) "(int * bool)")
       (is= (s-of-t (infer assumptions expr9)) "types do not unify: bool vs. int in λid → (id true, id 3)")
       (is= (s-of-t (infer {} expr10)) "(string * int)")
-      (is= (s-of-t (generalize {} (infer {} expr11))) "∀b. [b → b]")))
+      (is= (s-of-t (generalize {} (infer {} expr11))) "∀a. [a → a]")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

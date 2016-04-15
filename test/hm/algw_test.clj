@@ -3,7 +3,8 @@
            [hm.ast :refer :all]
            [hm.type :refer :all]
            [hm.env :refer :all]
-           [hm.algw :refer :all]))
+           [hm.algw :refer :all]
+           [hm.normalize :refer :all]))
 
 (deftest algw-test
   (testing "unification"
@@ -198,12 +199,12 @@
       (is= (s-of-t (infer assumptions expr14)) "types do not unify: int vs. bool in add true")
       (is= (s-of-t (infer assumptions expr15)) "(a → (e → f)) → (a → ((d → e) → (d → f)))")
       (is= (s-of-t (infer assumptions expr16)) "bool")
-      (is= (s-of-t (generalize {} (infer assumptions expr17))) "∀f. f → (f → f)")
-      (is= (s-of-t (generalize {} (infer assumptions expr18))) "∀e. (e, e) → e")
+      (is= (s-of-t (generalize {} (infer assumptions expr17))) "∀a. a → (a → a)")
+      (is= (s-of-t (generalize {} (infer assumptions expr18))) "∀a. (a, a) → a")
       (is= (s-of-t (generalize {} (infer assumptions (EVar "id")))) "∀a. a → a")
       (is= (s-of-t (generalize {} (infer {} (EFun ["y"] (EVar "y"))))) "∀a. a → a")
       (is= (s-of-t (generalize {} (infer assumptions (EVar "paira")))) "∀a,b. (a, b) → (a * b)")
-      (is= (s-of-t (generalize {} (infer assumptions expr19))) "∀b. [b → b]")
+      (is= (s-of-t (generalize {} (infer assumptions expr19))) "∀a. [a → a]")
       ;; recursive types a ~ a → b
       (is= (s-of-t (generalize {} (infer assumptions (EFun ["x"]
                                                            (EApp (EVar "x") (EVar "x"))))))
@@ -221,13 +222,13 @@
                                                             [(ELit (LInt 3))]))))
            "expected a function: zero in zero(3)")
       (is= (s-of-t (generalize {} (infer assumptions expr20)))
-           "∀b,d. (b → d, b) → d")
+           "∀a,b. (a → b, a) → b")
       (is= (s-of-t (generalize {} (infer assumptions expr21)))
-           "∀e,c. (c → e) → (c → e, c) → bool")
+           "∀a,b. (a → b) → (a → b, a) → bool")
       (is= (s-of-t (generalize {} (infer assumptions expr22))) "[int → int]")
-      (is= (s-of-t (generalize {} (infer assumptions expr23))) "∀e,g,d. ((e → g) → d) → (e → g) → e → g")
+      (is= (s-of-t (generalize {} (infer assumptions expr23))) "∀a,b,c. ((b → c) → a) → (b → c) → b → c")
       (is= (s-of-t (generalize {} (infer assumptions expr24))) "[int → int]")
-      (is= (s-of-t (generalize {} (infer assumptions expr25))) "∀d,c. ((c → c) → d) → d")
+      (is= (s-of-t (generalize {} (infer assumptions expr25))) "∀a,b. ((a → a) → b) → b")
       (is= (s-of-t (generalize {} (infer assumptions (EApp (EApp (EVar "const")
                                                                  (EVar "zero"))
                                                            (EVar "true")))))
@@ -244,9 +245,9 @@
                                                                              (EVar "x"))))
                                                            (EVar "zero")))))
            "int")
-      (is= (s-of-t (generalize {} (infer assumptions expr26))) "∀e,f. (e → f, e) → f")
-      (is= (s-of-t (generalize {} (infer assumptions expr27))) "∀e,f. (e → f) → e → f")
-      (is= (s-of-t (generalize {} (infer assumptions expr28))) "∀e,d. (d → e) → (d → e)")
+      (is= (s-of-t (generalize {} (infer assumptions expr26))) "∀a,b. (a → b, a) → b")
+      (is= (s-of-t (generalize {} (infer assumptions expr27))) "∀a,b. (a → b) → a → b")
+      (is= (s-of-t (generalize {} (infer assumptions expr28))) "∀a,b. (a → b) → (a → b)")
       (is= (s-of-t (generalize {} (infer assumptions expr29))) "int")
       (is= (s-of-t (generalize {} (infer assumptions expr30))) "int")
       (is= (s-of-t (generalize {} (infer assumptions (ECall (EVar "applya")
@@ -336,7 +337,7 @@
       (is= (s-of-t (infer assumptions expr8)) "(int * bool)")
       (is= (s-of-t (infer assumptions expr9)) "types do not unify: bool vs. int in id 3")
       (is= (s-of-t (infer assumptions expr10)) "(string * int)")
-      (is= (s-of-t (generalize {} (infer assumptions expr11))) "∀b. [b → b]")))
+      (is= (s-of-t (generalize {} (infer assumptions expr11))) "∀a. [a → a]")))
   (testing "inference recursive function types"
     (let [expr0 (ELetRec "factorial"
                          (EAbs "n"

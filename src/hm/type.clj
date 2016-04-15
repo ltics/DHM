@@ -85,16 +85,3 @@
                                 (s-of-m lmono)
                                 (s-of-m rmono))
     (TError msg) msg))
-
-(defn s-of-t
-  "string of types"
-  [t]
-  (match t
-    (Poly vnames mono) (if (empty? vnames)
-                         (s-of-m mono)
-                         (format "∀%s. %s"
-                                 (->> vnames
-                                      (map s-of-tvn)
-                                      (clojure.string/join ","))
-                                 (s-of-m mono)))
-    :else (s-of-m t)))
