@@ -127,8 +127,8 @@
                                   new-env  (env-replace [n e-poly] s-env)
                                   [cs2 b-mono] (algs new-env body)]
                               [(concatv cs1 cs2) b-mono])
-      ;; in algs extra type rule can not just put in assumptions
-      ;; should have explicit syntax definitions
+      ;; <del>in algs extra type rule can not just put in assumptions should have explicit syntax definitions</del>
+      ;; extra syntax definition is just suger for evaluation step, extra type rule can put in assunptions, see the test cases.
       (ESucc num) (let [[cs t] (algs env num)]
                     [(>=> [t (TPrm PInt)] cs) (TPrm PInt)])
       (EPred num) (let [[cs t] (algs env num)]
