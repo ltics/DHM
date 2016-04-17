@@ -187,7 +187,15 @@
                                         (EVar "x")))
                             (EVar "true")])
           expr41    (EVar "id")
-          expr42    (EVar "paira")]
+          expr42    (EVar "paira")
+          expr43    (EFun ["x"]
+                          (ELet "y"
+                                (EVar "x")
+                                (EVar "y")))
+          expr44    (EAbs "x"
+                          (ELet "y"
+                                (EVar "x")
+                                (EVar "y")))]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
@@ -260,7 +268,10 @@
       (is= (s-of-t (generalize {} (infer assumptions expr40)))
            "types do not unify: bool vs. int in applya(λx → succ x, true)")
       (is= (s-of-t (generalize {} (infer assumptions expr41))) "∀a. a → a")
-      (is= (s-of-t (generalize {} (infer assumptions expr42))) "∀a,b. (a, b) → (a * b)")))
+      (is= (s-of-t (generalize {} (infer assumptions expr42))) "∀a,b. (a, b) → (a * b)")
+      (is= (s-of-t (generalize {} (infer {} expr43)))
+           (s-of-t (generalize {} (infer {} expr44)))
+           "∀a. a → a")))
   (testing "inference compound types"
     (let [expr0  (EPair (ELit (LInt 3))
                         (ELit (LBool true)))

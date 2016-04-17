@@ -3,6 +3,7 @@
            [hm.type :refer :all]))
 
 (defn throw-occurs-exp
+  "recursive types a ~ a → b"
   [m1 m2]
   (throw (Exception. (format "occurs check fails: %s vs. %s"
                              (s-of-m m1)
