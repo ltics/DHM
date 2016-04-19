@@ -207,7 +207,17 @@
           expr44    (EAbs "x"
                           (ELet "y"
                                 (EVar "x")
-                                (EVar "y")))]
+                                (EVar "y")))
+          expr45    (ELet "f"
+                          (EAbs "x" (EVar "x"))
+                          (EApp (EApp (EVar "eq")
+                                      (EVar "f"))
+                                (EVar "succ")))
+          ;; case t(y) is TArrow so have to construct a succa to compare
+          expr46    (ELet "f"
+                          (EFun ["x"] (EVar "x"))
+                          (ECall (EVar "eqa")
+                                 [(EVar "f") (EVar "succa")]))]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
@@ -280,7 +290,10 @@
       ;; original hm is sound on let generalization with expr like fun x -> let y = x in y
       (is= (s-of-t (generalize {} (infer {} expr43)))
            (s-of-t (generalize {} (infer {} expr44)))
-           "∀a. a → a")))
+           "∀a. a → a")
+      (is= (s-of-t (generalize {} (infer assumptions expr45)))
+           (s-of-t (generalize {} (infer assumptions expr46)))
+           "bool")))
   ;; generally saying TFun is also a compound type
   (testing "inference compound types"
     (let [expr0  (EApp (EApp (EVar "pair")

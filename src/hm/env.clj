@@ -59,6 +59,7 @@
    "zero"    (Mono (TPrm PInt))
    "iszero"  (Mono (TFun (TPrm PInt) (TPrm PBool)))
    "succ"    (Mono (TFun (TPrm PInt) (TPrm PInt)))
+   "succa"   (Mono (TArrow [(TPrm PInt)] (TPrm PInt)))
    "pred"    (Mono (TFun (TPrm PInt) (TPrm PInt)))
    "times"   (Mono (TFun (TPrm PInt) (TFun (TPrm PInt) (TPrm PInt))))
    "add"     (Mono (TFun (TPrm PInt) (TFun (TPrm PInt) (TPrm PInt))))
