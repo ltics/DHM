@@ -212,7 +212,9 @@
           expr46    (ELet "f"
                           (EFun ["x"] (EVar "x"))
                           (ECall (EVar "eqa")
-                                 [(EVar "f") (EVar "succa")]))]
+                                 [(EVar "f") (EVar "succa")]))
+          expr47    (ECall (EVar "single")
+                           [(EVar "id")])]
       (is= (s-of-t (infer {} fun-id))
            "a → a")
       (is= (s-of-t (infer {} fun-true))
@@ -291,7 +293,8 @@
            "∀a. a → a")
       (is= (s-of-t (generalize {} (infer assumptions expr45)))
            (s-of-t (generalize {} (infer assumptions expr46)))
-           "bool")))
+           "bool")
+      (is= (s-of-t (generalize {} (infer assumptions expr47))) "∀a. [a → a]")))
   (testing "inference compound types"
     (let [expr0  (EPair (ELit (LInt 3))
                         (ELit (LBool true)))
