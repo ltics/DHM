@@ -92,4 +92,6 @@
    "applya"  (Poly #{"a" "b"} (TArrow [(TFun (TVar "a") (TVar "b")) (TVar "a")] (TVar "b")))
    "applyaa" (Poly #{"a" "b"} (TArrow [(TArrow [(TVar "a")] (TVar "b")) (TVar "a")] (TVar "b")))
    "choose"  (Poly #{"a"} (TFun (TVar "a") (TFun (TVar "a") (TVar "a"))))
-   "choosea" (Poly #{"a"} (TArrow [(TVar "a") (TVar "a")] (TVar "a")))})
+   "choosea" (Poly #{"a"} (TArrow [(TVar "a") (TVar "a")] (TVar "a")))
+   ;; just instantiate to a TVar can bind to any mono type in subrule
+   "wrong"   (Poly #{"a"} (TVar "a"))})
